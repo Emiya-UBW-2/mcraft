@@ -1,0 +1,5 @@
+hostpass=false
+bloom=true
+shadow=true
+usevr=false
+fov = 65.0

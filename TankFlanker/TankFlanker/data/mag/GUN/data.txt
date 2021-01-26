@@ -1,0 +1,3 @@
+ammo_cap=15
+ammo_1=45ACP
+ammo_end=end
