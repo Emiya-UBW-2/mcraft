@@ -58,6 +58,19 @@ public:
 		UIparts->load_window("アイテムオブジェクト");	//ロード画面1
 		SetBackgroundColor(255, 0, 0);
 		UIparts->load_window("アイテムデータ");	//ロード画面2
+
+		//*
+		light = CreateSpotLightHandle(
+			VGet(3, 3, 3),
+			VGet(0, 0, -1.f),
+			DX_PI_F / 4.0f,
+			DX_PI_F / 8.0f,
+			5.0f,
+			0.0f,
+			0.01f,
+			0.0f
+		);
+		//*/
 		do {
 			//マップ読み込み
 			mapparts->Ready_map("data/map_new2");
@@ -77,17 +90,6 @@ public:
 				//mapparts->map_draw();
 			});
 
-			/*
-			light = CreateSpotLightHandle(
-				VGet(0, 0, 0), VGet(0, 0, 1.f),
-				DX_PI_F / 2.0f,
-				DX_PI_F / 4.0f,
-				20.0f,
-				0.0f,
-				1.0f,
-				0.0f
-			);
-			//*/
 
 			//描画するものを指定する(仮)
 			auto draw_by_shadow = [&] {
@@ -258,6 +260,10 @@ public:
 									camera_TPS.camvec = camera_TPS.campos + MATRIX_ref::Vtrans(VGet(0, 0, 1), MATRIX_ref::RotX(xr_cam)*MATRIX_ref::RotY(yr_cam));
 									camera_TPS.camup = VGet(0, 1.f, 0);
 								}
+
+								SetLightPositionHandle(light, camera_TPS.campos.get());
+								SetLightDirectionHandle(light, (camera_TPS.camvec - camera_TPS.campos).get());
+
 								//影用意
 								Drawparts->Ready_Shadow(camera_TPS.campos,
 									[&] {
