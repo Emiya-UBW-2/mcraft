@@ -73,7 +73,7 @@ private:
 
 	//îÌé ëÃê[ìxï`âÊ
 	template <typename T1, typename T2>
-	void near_dof(T1 sky_doing, T2 doing, DXDraw::cam_info& cams, bool update_effekseer = true) {
+	void near_dof(T1 sky_doing, T2 doing, cam_info& cams, bool update_effekseer = true) {
 		if (dof_flag) {
 			//ãÛ
 			SkyScreen.SetDraw_Screen(cams.campos - cams.camvec, VGet(0, 0, 0), cams.camup, cams.fov, 1000.0f, 5000.0f);
@@ -108,7 +108,7 @@ private:
 	}
 	//ì¡Ç…âΩÇ‡ÇπÇ∏ï`âÊ
 	template <typename T1, typename T2>
-	void near_nomal(T1 sky_doing, T2 doing, DXDraw::cam_info& cams, bool update_effekseer = true) {
+	void near_nomal(T1 sky_doing, T2 doing, cam_info& cams, bool update_effekseer = true) {
 		//ãÛ
 		SkyScreen.SetDraw_Screen(cams.campos - cams.camvec, VGet(0, 0, 0), cams.camup, cams.fov, 1000.0f, 5000.0f);
 		{
@@ -127,7 +127,7 @@ private:
 	}
 public:
 	template <typename T1 ,typename T2>
-	void BUF_draw(T1 sky_doing, T2 doing, DXDraw::cam_info& cams, bool update_effekseer = true) {
+	void BUF_draw(T1 sky_doing, T2 doing, cam_info& cams, bool update_effekseer = true) {
 		//nearÇ…ï`âÊ
 		if (dof_flag) {
 			near_dof(sky_doing, doing, cams, update_effekseer);

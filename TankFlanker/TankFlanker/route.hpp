@@ -7,7 +7,7 @@ class main_c : Mainclass {
 	bool useVR_e = true;
 	float fov_pc = 45.f;
 	//カメラ
-	DXDraw::cam_info camera_main, camera_TPS;
+	cam_info camera_main, camera_TPS;
 	//描画スクリーン
 	GraphHandle outScreen2;
 	GraphHandle UI_Screen,UI_Screen2;			
@@ -59,7 +59,7 @@ public:
 		SetBackgroundColor(255, 0, 0);
 		UIparts->load_window("アイテムデータ");	//ロード画面2
 
-		//*
+		/*
 		light = CreateSpotLightHandle(
 			VGet(3, 3, 3),
 			VGet(0, 0, -1.f),
