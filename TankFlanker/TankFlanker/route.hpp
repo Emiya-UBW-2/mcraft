@@ -59,15 +59,15 @@ public:
 		SetBackgroundColor(255, 0, 0);
 		UIparts->load_window("アイテムデータ");	//ロード画面2
 
-		/*
+		//*
 		light = CreateSpotLightHandle(
 			VGet(3, 3, 3),
 			VGet(0, 0, -1.f),
 			DX_PI_F / 4.0f,
 			DX_PI_F / 8.0f,
-			5.0f,
+			15.0f,
 			0.0f,
-			0.01f,
+			0.1f,
 			0.0f
 		);
 		//*/
