@@ -9,6 +9,7 @@
 
 class Mapclass :Mainclass {
 private:
+	int size_ = 10;
 	class block_mod {
 	private:
 	public:
@@ -19,7 +20,10 @@ private:
 	private:
 	public:
 		block_mod* ptr = nullptr;
-
+		int x = 0;
+		int y = 0;
+		int z = 0;
+		std::array<block_obj*, 6> near_{ nullptr };
 	};
 
 	MV1 sky;			//‹ó
@@ -27,26 +31,118 @@ private:
 public:
 	std::vector<block_mod> mods;
 	std::vector<block_obj> objs;
-
+	std::vector<block_obj*> objs_canlook;
 
 	Mapclass() {
 		mods.resize(mods.size() + 1);
 		mods.back();
 
-		for (int x = -10; x <= 10; x++) {
-			for (int y = -10; y <= 10; y++) {
-				for (int z = -10; z <= 10; z++) {
+		for (int x = -size_ / 2; x <= size_ / 2; x++) {
+			for (int y = -size_ / 2; y <= size_ / 2; y++) {
+				for (int z = -size_ / 2; z <= size_ / 2; z++) {
 					objs.resize(objs.size() + 1);
-					if (GetRand(100) <= 25) {
-						objs.back().ptr = &mods.back();
-					}
+					objs.back().ptr = &mods.back();
+					objs.back().x = x;
+					objs.back().y = y;
+					objs.back().z = z;
 				}
 			}
 		}
-	}
-	~Mapclass() {
+		for (auto& m : objs) {
+			set_block(m);
+			push_canlook(m);
+		}
 
 	}
+	~Mapclass() {
+	}
+
+	void set_block(block_obj& m) {
+		for (auto& n : m.near_) {
+			n = nullptr;
+		}
+
+		{
+			auto id = (m.x - 1 + size_ / 2)*size_ * size_ + (m.y + size_ / 2) * size_ + (m.z + size_ / 2);
+			if (id >= 0 && id <= objs.size() - 1 && abs(m.x) != size_ / 2) {
+				m.near_[0] = &objs[id];
+			}
+		}
+		{
+			auto id = (m.x + 1 + size_ / 2)*size_ * size_ + (m.y + size_ / 2) * size_ + (m.z + size_ / 2);
+			if (id >= 0 && id <= objs.size() - 1 && abs(m.x) != size_ / 2) {
+				m.near_[1] = &objs[id];
+			}
+		}
+		{
+			auto id = (m.x + size_ / 2)*size_ * size_ + (m.y - 1 + size_ / 2) * size_ + (m.z + size_ / 2);
+			if (id >= 0 && id <= objs.size() - 1 && abs(m.y) != size_ / 2) {
+				m.near_[2] = &objs[id];
+			}
+		}
+		{
+			auto id = (m.x + size_ / 2)*size_ * size_ + (m.y + 1 + size_ / 2) * size_ + (m.z + size_ / 2);
+			if (id >= 0 && id <= objs.size() - 1 && abs(m.y) != size_ / 2) {
+				m.near_[3] = &objs[id];
+			}
+		}
+		{
+			auto id = (m.x + size_ / 2)*size_ * size_ + (m.y + size_ / 2) * size_ + (m.z - 1 + size_ / 2);
+			if (id >= 0 && id <= objs.size() - 1 && abs(m.z) != size_ / 2) {
+				m.near_[4] = &objs[id];
+			}
+		}
+		{
+			auto id = (m.x + size_ / 2)*size_ * size_ + (m.y + size_ / 2) * size_ + (m.z + 1 + size_ / 2);
+			if (id >= 0 && id <= objs.size() - 1 && abs(m.z) != size_ / 2) {
+				m.near_[5] = &objs[id];
+			}
+		}
+	}
+	void push_canlook(block_obj& m) {
+		int cnt = 0;
+		for (auto& n : m.near_) {
+			if (n != nullptr) {
+				cnt++;
+			}
+		}
+		if (cnt != m.near_.size()) {
+			objs_canlook.resize(objs_canlook.size() + 1);
+			objs_canlook.back() = &m;
+		}
+	}
+
+	void put_block(int x, int y, int z, block_mod* mod) {
+		auto id = (x + size_ / 2)*size_ * size_ + (y + size_ / 2) * size_ + (z + size_ / 2);
+		objs[id].ptr = mod;
+		objs[id].x = x;
+		objs[id].y = y;
+		objs[id].z = z;
+		push_canlook(objs[id]);
+	}
+	void pop_block(int x, int y, int z) {
+		auto id = (x + size_ / 2)*size_ * size_ + (y + size_ / 2) * size_ + (z + size_ / 2);
+		objs[id].ptr = nullptr;
+		objs[id].x = x;
+		objs[id].y = y;
+		objs[id].z = z;
+		size_t ids = SIZE_MAX;
+		for (auto& m : objs_canlook) {
+			if (&objs[id] == m) {
+				ids = &m - &objs_canlook[0];
+				break;
+			}
+		}
+		if (ids != SIZE_MAX) {
+			objs_canlook.erase(objs_canlook.begin() + ids);
+		}
+		for (auto& n : objs[id].near_) {
+			if (n != nullptr) {
+				push_canlook(*n);
+			}
+		}
+	}
+
 	void Ready_map(std::string dir) {
 		SetUseASyncLoadFlag(TRUE);
 		SetUseASyncLoadFlag(FALSE);
@@ -74,29 +170,26 @@ public:
 	//
 	void map_draw() {
 		int p = 0;
-		for (int x = -10; x <= 10; x++) {
-			for (int y = -10; y <= 10; y++) {
-				for (int z = -10; z <= 10; z++) {
-					if (objs[p++].ptr == nullptr) {
-						continue;
-					}
-					if (
-						CheckCameraViewClip_Box(
-							VGet(float(x), float(y), float(z)),
-							VGet(float(x) + 1.f, float(y) + 1.f, float(z) + 1.f)
-						)
-						) {
-						continue;
-					}
-					DrawCube3D(
-						VGet(float(x), float(y), float(z)),
-						VGet(float(x) + 1.f, float(y) + 1.f, float(z) + 1.f),
-						GetColor(0, 255, 0),
-						GetColor(255, 255, 255),
-						TRUE
-					);
-				}
+		for (auto& m : objs_canlook) {
+			int x = m->x;
+			int y = m->y;
+			int z = m->z;
+
+			if (
+				CheckCameraViewClip_Box(
+					VGet(float(x), float(y), float(z)),
+					VGet(float(x) + 1.f, float(y) + 1.f, float(z) + 1.f)
+				)
+				) {
+				continue;
 			}
+			DrawCube3D(
+				VGet(float(x), float(y), float(z)),
+				VGet(float(x) + 1.f, float(y) + 1.f, float(z) + 1.f),
+				GetColor(0, 255, 0),
+				GetColor(255, 255, 255),
+				TRUE
+			);
 		}
 		return;
 	}

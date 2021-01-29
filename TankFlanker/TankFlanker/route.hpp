@@ -98,6 +98,12 @@ public:
 					mapparts->map_draw();
 					for (auto& c : this->chara) {
 						c.Draw_chara();
+						SetUseZBuffer3D(FALSE);
+						SetUseLighting(FALSE);
+						auto pos_ = (c.pos + c.pos_HMD - c.rec_HMD) + c.mat.zvec()*(Drawparts->use_vr ? 1.f : -1.f);
+						DrawCube3D(VGet(int(pos_.x()), int(pos_.y()), int(pos_.z())), VGet(int(pos_.x() + 1.f), int(pos_.y() + 1.f), int(pos_.z() + 1.f)), GetColor(255, 255, 255), GetColor(255, 255, 255), FALSE);
+						SetUseZBuffer3D(TRUE);
+						SetUseLighting(TRUE);
 					}
 				});
 			};
@@ -142,13 +148,21 @@ public:
 						}
 						//
 						for (auto& c : chara) {
+							c.pos += c.add_vec_buf;
 							//”»’è
+							auto pos_ = (c.pos + c.pos_HMD - c.rec_HMD) + c.mat.zvec()*(Drawparts->use_vr ? 1.f : -1.f);
+							if (c.shot.push()) {
+								mapparts->pop_block(int(pos_.x()), int(pos_.y()), int(pos_.z()));
+							}
 							//pos
 						}
 						//campos,camvec,camup‚ÌŽw’è
 						{
 							auto& ct = mine;
 							camera_main.set_cam_pos(ct.pos + ct.pos_HMD - ct.rec_HMD, (ct.pos + ct.pos_HMD - ct.rec_HMD) + ct.mat.zvec()*(Drawparts->use_vr ? 1.f : -1.f), ct.mat.yvec());
+
+							SetLightPositionHandle(light, camera_main.campos.get());
+							SetLightDirectionHandle(light, (camera_main.camvec - camera_main.campos).get());
 						}
 						Set3DSoundListenerPosAndFrontPosAndUpVec(camera_main.campos.get(), camera_main.camvec.get(), camera_main.camup.get());
 						UpdateEffekseer3D();
@@ -260,9 +274,6 @@ public:
 									camera_TPS.camvec = camera_TPS.campos + MATRIX_ref::Vtrans(VGet(0, 0, 1), MATRIX_ref::RotX(xr_cam)*MATRIX_ref::RotY(yr_cam));
 									camera_TPS.camup = VGet(0, 1.f, 0);
 								}
-
-								SetLightPositionHandle(light, camera_TPS.campos.get());
-								SetLightDirectionHandle(light, (camera_TPS.camvec - camera_TPS.campos).get());
 
 								//‰e—pˆÓ
 								Drawparts->Ready_Shadow(camera_TPS.campos,
