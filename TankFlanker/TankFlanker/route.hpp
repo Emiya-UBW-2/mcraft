@@ -100,7 +100,7 @@ public:
 						c.Draw_chara();
 						SetUseZBuffer3D(FALSE);
 						SetUseLighting(FALSE);
-						auto pos_ = (c.pos + c.pos_HMD - c.rec_HMD) + c.mat.zvec()*(Drawparts->use_vr ? 1.f : -1.f);
+						auto pos_ = (c.pos + c.pos_HMD - c.rec_HMD) + c.mat.zvec()*(Drawparts->use_vr ? 1.f : -1.f)*3.f;
 						DrawCube3D(
 							VGet(float(int(pos_.x()) - 0.5f), float(int(pos_.y()) - 0.5f), float(int(pos_.z()) - 0.5f)),
 							VGet(float(int(pos_.x()) + 0.5f), float(int(pos_.y()) + 0.5f), float(int(pos_.z()) + 0.5f)),
@@ -151,10 +151,10 @@ public:
 						}
 						//
 						for (auto& c : chara) {
-							c.pos.y(1.8f);
+							c.pos_HMD.y(1.8f);
 							c.pos += c.add_vec_buf;
 							//”»’è
-							auto pos_ = (c.pos + c.pos_HMD - c.rec_HMD) + c.mat.zvec()*(Drawparts->use_vr ? 1.f : -1.f);
+							auto pos_ = (c.pos + c.pos_HMD - c.rec_HMD) + c.mat.zvec()*(Drawparts->use_vr ? 1.f : -1.f)*3.f;
 							if (c.shot.push()) {
 								mapparts->pop_block(int(pos_.x()), int(pos_.y()), int(pos_.z()));
 								Drawparts->Update_far_Shadow(
