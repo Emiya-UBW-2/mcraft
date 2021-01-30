@@ -59,7 +59,7 @@ public:
 		SetBackgroundColor(255, 0, 0);
 		UIparts->load_window("アイテムデータ");	//ロード画面2
 
-		//*
+		/*
 		light = CreateSpotLightHandle(
 			VGet(3, 3, 3),
 			VGet(0, 0, -1.f),
@@ -101,7 +101,10 @@ public:
 						SetUseZBuffer3D(FALSE);
 						SetUseLighting(FALSE);
 						auto pos_ = (c.pos + c.pos_HMD - c.rec_HMD) + c.mat.zvec()*(Drawparts->use_vr ? 1.f : -1.f);
-						DrawCube3D(VGet(int(pos_.x()), int(pos_.y()), int(pos_.z())), VGet(int(pos_.x() + 1.f), int(pos_.y() + 1.f), int(pos_.z() + 1.f)), GetColor(255, 255, 255), GetColor(255, 255, 255), FALSE);
+						DrawCube3D(
+							VGet(float(int(pos_.x()) - 0.5f), float(int(pos_.y()) - 0.5f), float(int(pos_.z()) - 0.5f)),
+							VGet(float(int(pos_.x()) + 0.5f), float(int(pos_.y()) + 0.5f), float(int(pos_.z()) + 0.5f)),
+							GetColor(255, 255, 255), GetColor(255, 255, 255), FALSE);
 						SetUseZBuffer3D(TRUE);
 						SetUseLighting(TRUE);
 					}
@@ -148,11 +151,25 @@ public:
 						}
 						//
 						for (auto& c : chara) {
+							c.pos.y(1.8f);
 							c.pos += c.add_vec_buf;
 							//判定
 							auto pos_ = (c.pos + c.pos_HMD - c.rec_HMD) + c.mat.zvec()*(Drawparts->use_vr ? 1.f : -1.f);
 							if (c.shot.push()) {
 								mapparts->pop_block(int(pos_.x()), int(pos_.y()), int(pos_.z()));
+								Drawparts->Update_far_Shadow(
+									[&] {
+									mapparts->map_draw();
+								}
+								);
+							}
+							if (c.shot_R.push()) {
+								mapparts->put_block(int(pos_.x()), int(pos_.y()), int(pos_.z()), &mapparts->mods.back());
+								Drawparts->Update_far_Shadow(
+									[&] {
+									mapparts->map_draw();
+								}
+								);
 							}
 							//pos
 						}

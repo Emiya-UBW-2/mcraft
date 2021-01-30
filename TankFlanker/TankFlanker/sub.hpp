@@ -37,6 +37,7 @@ public:
 		bool running = false;										//‘–‚é‚©”Û‚©
 		bool jamp = false;
 		switchs shot;
+		switchs shot_R;
 		//“ª•”À•WŒn
 		VECTOR_ref pos_HMD, pos_HMD_old, rec_HMD;
 		float add_ypos = 0.f;//‚’¼‰Á‘¬“x
@@ -188,6 +189,7 @@ public:
 				this->running = (CheckHitKey(KEY_INPUT_LSHIFT) != 0);
 				this->jamp = CheckHitKey(KEY_INPUT_SPACE) != 0;
 				this->shot.get_in((GetMouseInput() & MOUSE_INPUT_LEFT) != 0);
+				this->shot_R.get_in((GetMouseInput() & MOUSE_INPUT_RIGHT) != 0);
 				//
 				GetMousePoint(&x_m, &y_m);
 				x_m -= deskx / 2;

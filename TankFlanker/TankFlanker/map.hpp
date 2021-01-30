@@ -9,7 +9,7 @@
 
 class Mapclass :Mainclass {
 private:
-	int size_ = 10;
+	int size_ = 100;
 	class block_mod {
 	private:
 	public:
@@ -41,18 +41,24 @@ public:
 			for (int y = -size_ / 2; y <= size_ / 2; y++) {
 				for (int z = -size_ / 2; z <= size_ / 2; z++) {
 					objs.resize(objs.size() + 1);
-					objs.back().ptr = &mods.back();
+					objs.back().ptr = nullptr;
 					objs.back().x = x;
 					objs.back().y = y;
 					objs.back().z = z;
 				}
 			}
 		}
+
 		for (auto& m : objs) {
 			set_block(m);
 			push_canlook(m);
 		}
 
+		for (int x = -size_ / 2; x <= size_ / 2; x++) {
+			for (int z = -size_ / 2; z <= size_ / 2; z++) {
+				put_block(x, -1, z, &mods.back());
+			}
+		}
 	}
 	~Mapclass() {
 	}
@@ -63,57 +69,67 @@ public:
 		}
 
 		{
-			auto id = (m.x - 1 + size_ / 2)*size_ * size_ + (m.y + size_ / 2) * size_ + (m.z + size_ / 2);
+			auto id = (m.x - 1 + size_ / 2)*(size_ + 1) * (size_ + 1) + (m.y + (size_+1) / 2) * (size_ + 1) + (m.z + size_ / 2);
 			if (id >= 0 && id <= objs.size() - 1 && abs(m.x) != size_ / 2) {
 				m.near_[0] = &objs[id];
 			}
 		}
 		{
-			auto id = (m.x + 1 + size_ / 2)*size_ * size_ + (m.y + size_ / 2) * size_ + (m.z + size_ / 2);
+			auto id = (m.x + 1 + size_ / 2)*(size_ + 1) * (size_ + 1) + (m.y + size_ / 2) * (size_ + 1) + (m.z + size_ / 2);
 			if (id >= 0 && id <= objs.size() - 1 && abs(m.x) != size_ / 2) {
 				m.near_[1] = &objs[id];
 			}
 		}
 		{
-			auto id = (m.x + size_ / 2)*size_ * size_ + (m.y - 1 + size_ / 2) * size_ + (m.z + size_ / 2);
+			auto id = (m.x + size_ / 2)*(size_ + 1) * (size_ + 1) + (m.y - 1 + size_ / 2) * (size_ + 1) + (m.z + size_ / 2);
 			if (id >= 0 && id <= objs.size() - 1 && abs(m.y) != size_ / 2) {
 				m.near_[2] = &objs[id];
 			}
 		}
 		{
-			auto id = (m.x + size_ / 2)*size_ * size_ + (m.y + 1 + size_ / 2) * size_ + (m.z + size_ / 2);
+			auto id = (m.x + size_ / 2)*(size_ + 1) * (size_ + 1) + (m.y + 1 + size_ / 2) * (size_ + 1) + (m.z + size_ / 2);
 			if (id >= 0 && id <= objs.size() - 1 && abs(m.y) != size_ / 2) {
 				m.near_[3] = &objs[id];
 			}
 		}
 		{
-			auto id = (m.x + size_ / 2)*size_ * size_ + (m.y + size_ / 2) * size_ + (m.z - 1 + size_ / 2);
+			auto id = (m.x + size_ / 2)*(size_ + 1) * (size_ + 1) + (m.y + size_ / 2) * (size_ + 1) + (m.z - 1 + size_ / 2);
 			if (id >= 0 && id <= objs.size() - 1 && abs(m.z) != size_ / 2) {
 				m.near_[4] = &objs[id];
 			}
 		}
 		{
-			auto id = (m.x + size_ / 2)*size_ * size_ + (m.y + size_ / 2) * size_ + (m.z + 1 + size_ / 2);
+			auto id = (m.x + size_ / 2)*(size_ + 1) * (size_ + 1) + (m.y + size_ / 2) * (size_ + 1) + (m.z + 1 + size_ / 2);
 			if (id >= 0 && id <= objs.size() - 1 && abs(m.z) != size_ / 2) {
 				m.near_[5] = &objs[id];
 			}
 		}
 	}
 	void push_canlook(block_obj& m) {
-		int cnt = 0;
-		for (auto& n : m.near_) {
-			if (n != nullptr) {
-				cnt++;
+		if (m.ptr!=nullptr) {
+			int cnt = 0;
+			for (auto& n : m.near_) {
+				if (n != nullptr) {
+					cnt++;
+				}
 			}
+			if (cnt != m.near_.size()) {
+				objs_canlook.emplace_back(&m);
+				return;
+			}
+			objs_canlook.emplace_back(&m);
 		}
-		if (cnt != m.near_.size()) {
-			objs_canlook.resize(objs_canlook.size() + 1);
-			objs_canlook.back() = &m;
-		}
+
 	}
 
 	void put_block(int x, int y, int z, block_mod* mod) {
-		auto id = (x + size_ / 2)*size_ * size_ + (y + size_ / 2) * size_ + (z + size_ / 2);
+		if (abs(x) > size_ / 2 || abs(y) > size_ / 2 || abs(z) > size_ / 2) {
+			return;
+		}
+		auto id = (x + size_ / 2)*(size_ + 1) * (size_ + 1) + (y + size_ / 2) * (size_ + 1) + (z + size_ / 2);
+		if (objs[id].ptr != nullptr) {
+			return;
+		}
 		objs[id].ptr = mod;
 		objs[id].x = x;
 		objs[id].y = y;
@@ -121,24 +137,36 @@ public:
 		push_canlook(objs[id]);
 	}
 	void pop_block(int x, int y, int z) {
-		auto id = (x + size_ / 2)*size_ * size_ + (y + size_ / 2) * size_ + (z + size_ / 2);
+		auto id = (x + size_ / 2)*(size_ + 1) * (size_ + 1) + (y + size_ / 2) * (size_ + 1) + (z + size_ / 2);
 		objs[id].ptr = nullptr;
 		objs[id].x = x;
 		objs[id].y = y;
 		objs[id].z = z;
-		size_t ids = SIZE_MAX;
-		for (auto& m : objs_canlook) {
-			if (&objs[id] == m) {
-				ids = &m - &objs_canlook[0];
-				break;
+		{
+			size_t ids = SIZE_MAX;
+			for (auto& m : objs_canlook) {
+				if (&objs[id] == m) {
+					ids = &m - &objs_canlook[0];
+					break;
+				}
+			}
+			if (ids != SIZE_MAX) {
+				objs_canlook.erase(objs_canlook.begin() + ids);
 			}
 		}
-		if (ids != SIZE_MAX) {
-			objs_canlook.erase(objs_canlook.begin() + ids);
-		}
+
 		for (auto& n : objs[id].near_) {
 			if (n != nullptr) {
-				push_canlook(*n);
+				bool p = true;
+				for (auto& o : objs_canlook) {
+					if (n == o) {
+						p = false;
+						break;
+					}
+				}
+				if (p) {
+					push_canlook(*n);
+				}
 			}
 		}
 	}
@@ -177,15 +205,13 @@ public:
 
 			if (
 				CheckCameraViewClip_Box(
-					VGet(float(x), float(y), float(z)),
-					VGet(float(x) + 1.f, float(y) + 1.f, float(z) + 1.f)
+					VGet(float(x) - 0.5f, float(y) - 0.5f, float(z) - 0.5f), VGet(float(x) + 0.5f, float(y) + 0.5f, float(z) + 0.5f)
 				)
 				) {
 				continue;
 			}
 			DrawCube3D(
-				VGet(float(x), float(y), float(z)),
-				VGet(float(x) + 1.f, float(y) + 1.f, float(z) + 1.f),
+				VGet(float(x) - 0.5f, float(y) - 0.5f, float(z) - 0.5f), VGet(float(x) + 0.5f, float(y) + 0.5f, float(z) + 0.5f),
 				GetColor(0, 255, 0),
 				GetColor(255, 255, 255),
 				TRUE
