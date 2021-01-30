@@ -55,10 +55,7 @@ public:
 		auto mapparts = std::make_unique<Mapclass>();																//MAP
 		//model
 		//auto font = FontHandle::Create(18);
-		UIparts->load_window("アイテムオブジェクト");	//ロード画面1
-		SetBackgroundColor(255, 0, 0);
-		UIparts->load_window("アイテムデータ");	//ロード画面2
-
+		UIparts->load_window("オブジェクト");	//ロード画面1
 		/*
 		light = CreateSpotLightHandle(
 			VGet(3, 3, 3),
@@ -86,11 +83,7 @@ public:
 				mine.spawn(VGet(0,0,0),MGetIdent());
 			}
 			//ライティング
-			Drawparts->Set_Light_Shadow(VGet(10.5f, 10.5f, 10.5f), VGet(-10.5f, -10.5f, -10.5f), VGet(0.5f, -0.5f, 0.5f), [&] {
-				//mapparts->map_draw();
-			});
-
-
+			Drawparts->Set_Light_Shadow(VGet(10.5f, 10.5f, 10.5f), VGet(-10.5f, -10.5f, -10.5f), VGet(0.5f, -0.5f, 0.5f), [&] { mapparts->map_draw(); });
 			//描画するものを指定する(仮)
 			auto draw_by_shadow = [&] {
 				Drawparts->Draw_by_Shadow(
@@ -102,8 +95,14 @@ public:
 						SetUseLighting(FALSE);
 						auto pos_ = (c.pos + c.pos_HMD - c.rec_HMD) + c.mat.zvec()*(Drawparts->use_vr ? 1.f : -1.f)*3.f;
 						DrawCube3D(
-							VGet(float(int(pos_.x()) - 0.5f), float(int(pos_.y()) - 0.5f), float(int(pos_.z()) - 0.5f)),
-							VGet(float(int(pos_.x()) + 0.5f), float(int(pos_.y()) + 0.5f), float(int(pos_.z()) + 0.5f)),
+							VGet(
+								float(int(pos_.x() / mapparts->cube_size_x)) * mapparts->cube_size_x - mapparts->cube_size_x / 2,
+								float(int(pos_.y() / mapparts->cube_size_y)) * mapparts->cube_size_y - mapparts->cube_size_y / 2,
+								float(int(pos_.z() / mapparts->cube_size_z)) * mapparts->cube_size_z - mapparts->cube_size_z / 2),
+							VGet(
+								float(int(pos_.x() / mapparts->cube_size_x)) * mapparts->cube_size_x + mapparts->cube_size_x / 2,
+								float(int(pos_.y() / mapparts->cube_size_y)) * mapparts->cube_size_y + mapparts->cube_size_y / 2,
+								float(int(pos_.z() / mapparts->cube_size_z)) * mapparts->cube_size_z + mapparts->cube_size_z / 2),
 							GetColor(255, 255, 255), GetColor(255, 255, 255), FALSE);
 						SetUseZBuffer3D(TRUE);
 						SetUseLighting(TRUE);
@@ -155,21 +154,15 @@ public:
 							c.pos += c.add_vec_buf;
 							//判定
 							auto pos_ = (c.pos + c.pos_HMD - c.rec_HMD) + c.mat.zvec()*(Drawparts->use_vr ? 1.f : -1.f)*3.f;
+							//ブロック置く
 							if (c.shot.push()) {
-								mapparts->pop_block(int(pos_.x()), int(pos_.y()), int(pos_.z()));
-								Drawparts->Update_far_Shadow(
-									[&] {
-									mapparts->map_draw();
-								}
-								);
+								mapparts->put_block(int(pos_.x() / mapparts->cube_size_x), int(pos_.y() / mapparts->cube_size_y), int(pos_.z() / mapparts->cube_size_z), &mapparts->mods.back());
+								Drawparts->Update_far_Shadow([&] { mapparts->map_draw(); });
 							}
+							//ブロック消す
 							if (c.shot_R.push()) {
-								mapparts->put_block(int(pos_.x()), int(pos_.y()), int(pos_.z()), &mapparts->mods.back());
-								Drawparts->Update_far_Shadow(
-									[&] {
-									mapparts->map_draw();
-								}
-								);
+								mapparts->pop_block(int(pos_.x() / mapparts->cube_size_x), int(pos_.y() / mapparts->cube_size_y), int(pos_.z() / mapparts->cube_size_z));
+								Drawparts->Update_far_Shadow([&] { mapparts->map_draw(); });
 							}
 							//pos
 						}

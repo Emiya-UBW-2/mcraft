@@ -8,8 +8,14 @@
 #define PLAYER_HIT_SLIDE_LENGTH		0.015f	// 一度の壁押し出し処理でスライドさせる距離
 
 class Mapclass :Mainclass {
+public:
+	float cube_size_x = 1.f;
+	float cube_size_y = 0.25f;
+	float cube_size_z = 1.f;
 private:
-	int size_ = 100;
+	int size_x = 100;
+	int size_y = 100;
+	int size_z = 100;
 	class block_mod {
 	private:
 	public:
@@ -27,19 +33,21 @@ private:
 	};
 
 	MV1 sky;			//空
-
 public:
 	std::vector<block_mod> mods;
 	std::vector<block_obj> objs;
 	std::vector<block_obj*> objs_canlook;
 
 	Mapclass() {
+		MV1::Load("data/sky/model.mv1", &sky, true);	 //空
+
+
 		mods.resize(mods.size() + 1);
 		mods.back();
 
-		for (int x = -size_ / 2; x <= size_ / 2; x++) {
-			for (int y = -size_ / 2; y <= size_ / 2; y++) {
-				for (int z = -size_ / 2; z <= size_ / 2; z++) {
+		for (int x = -size_x / 2; x <= size_x / 2; x++) {
+			for (int y = -size_y / 2; y <= size_y / 2; y++) {
+				for (int z = -size_z / 2; z <= size_z / 2; z++) {
 					objs.resize(objs.size() + 1);
 					objs.back().ptr = nullptr;
 					objs.back().x = x;
@@ -54,8 +62,8 @@ public:
 			push_canlook(m);
 		}
 
-		for (int x = -size_ / 2; x <= size_ / 2; x++) {
-			for (int z = -size_ / 2; z <= size_ / 2; z++) {
+		for (int x = -size_x / 2; x <= size_x / 2; x++) {
+			for (int z = -size_z / 2; z <= size_z / 2; z++) {
 				put_block(x, -1, z, &mods.back());
 			}
 		}
@@ -69,38 +77,38 @@ public:
 		}
 
 		{
-			auto id = (m.x - 1 + size_ / 2)*(size_ + 1) * (size_ + 1) + (m.y + (size_+1) / 2) * (size_ + 1) + (m.z + size_ / 2);
-			if (id >= 0 && id <= objs.size() - 1 && abs(m.x) != size_ / 2) {
+			auto id = (m.x - 1 + size_x / 2)*(size_y + 1) * (size_z + 1) + (m.y + size_y / 2) * (size_z + 1) + (m.z + size_z / 2);
+			if (id >= 0 && id <= objs.size() - 1 && abs(m.x) != size_x / 2) {
 				m.near_[0] = &objs[id];
 			}
 		}
 		{
-			auto id = (m.x + 1 + size_ / 2)*(size_ + 1) * (size_ + 1) + (m.y + size_ / 2) * (size_ + 1) + (m.z + size_ / 2);
-			if (id >= 0 && id <= objs.size() - 1 && abs(m.x) != size_ / 2) {
+			auto id = (m.x + 1 + size_x / 2)*(size_y + 1) * (size_z + 1) + (m.y + size_y / 2) * (size_z + 1) + (m.z + size_z / 2);
+			if (id >= 0 && id <= objs.size() - 1 && abs(m.x) != size_x / 2) {
 				m.near_[1] = &objs[id];
 			}
 		}
 		{
-			auto id = (m.x + size_ / 2)*(size_ + 1) * (size_ + 1) + (m.y - 1 + size_ / 2) * (size_ + 1) + (m.z + size_ / 2);
-			if (id >= 0 && id <= objs.size() - 1 && abs(m.y) != size_ / 2) {
+			auto id = (m.x + size_x / 2)*(size_y + 1) * (size_z + 1) + (m.y - 1 + size_y / 2) * (size_z + 1) + (m.z + size_z / 2);
+			if (id >= 0 && id <= objs.size() - 1 && abs(m.y) != size_y / 2) {
 				m.near_[2] = &objs[id];
 			}
 		}
 		{
-			auto id = (m.x + size_ / 2)*(size_ + 1) * (size_ + 1) + (m.y + 1 + size_ / 2) * (size_ + 1) + (m.z + size_ / 2);
-			if (id >= 0 && id <= objs.size() - 1 && abs(m.y) != size_ / 2) {
+			auto id = (m.x + size_x / 2)*(size_y + 1) * (size_z + 1) + (m.y + 1 + size_y / 2) * (size_z + 1) + (m.z + size_z / 2);
+			if (id >= 0 && id <= objs.size() - 1 && abs(m.y) != size_y / 2) {
 				m.near_[3] = &objs[id];
 			}
 		}
 		{
-			auto id = (m.x + size_ / 2)*(size_ + 1) * (size_ + 1) + (m.y + size_ / 2) * (size_ + 1) + (m.z - 1 + size_ / 2);
-			if (id >= 0 && id <= objs.size() - 1 && abs(m.z) != size_ / 2) {
+			auto id = (m.x + size_x / 2)*(size_y + 1) * (size_z + 1) + (m.y + size_y / 2) * (size_z + 1) + (m.z - 1 + size_z / 2);
+			if (id >= 0 && id <= objs.size() - 1 && abs(m.z) != size_z / 2) {
 				m.near_[4] = &objs[id];
 			}
 		}
 		{
-			auto id = (m.x + size_ / 2)*(size_ + 1) * (size_ + 1) + (m.y + size_ / 2) * (size_ + 1) + (m.z + 1 + size_ / 2);
-			if (id >= 0 && id <= objs.size() - 1 && abs(m.z) != size_ / 2) {
+			auto id = (m.x + size_x / 2)*(size_y + 1) * (size_z + 1) + (m.y + size_y / 2) * (size_z + 1) + (m.z + 1 + size_z / 2);
+			if (id >= 0 && id <= objs.size() - 1 && abs(m.z) != size_z / 2) {
 				m.near_[5] = &objs[id];
 			}
 		}
@@ -123,10 +131,10 @@ public:
 	}
 
 	void put_block(int x, int y, int z, block_mod* mod) {
-		if (abs(x) > size_ / 2 || abs(y) > size_ / 2 || abs(z) > size_ / 2) {
+		if (abs(x) > size_x / 2 || abs(y) > size_y / 2 || abs(z) > size_z / 2) {
 			return;
 		}
-		auto id = (x + size_ / 2)*(size_ + 1) * (size_ + 1) + (y + size_ / 2) * (size_ + 1) + (z + size_ / 2);
+		auto id = (x + size_x / 2)*(size_y + 1) * (size_z + 1) + (y + size_y / 2) * (size_z + 1) + (z + size_z / 2);
 		if (objs[id].ptr != nullptr) {
 			return;
 		}
@@ -137,7 +145,7 @@ public:
 		push_canlook(objs[id]);
 	}
 	void pop_block(int x, int y, int z) {
-		auto id = (x + size_ / 2)*(size_ + 1) * (size_ + 1) + (y + size_ / 2) * (size_ + 1) + (z + size_ / 2);
+		auto id = (x + size_x / 2)*(size_y + 1) * (size_z + 1) + (y + size_y / 2) * (size_z + 1) + (z + size_z / 2);
 		objs[id].ptr = nullptr;
 		objs[id].x = x;
 		objs[id].y = y;
@@ -176,12 +184,13 @@ public:
 		SetUseASyncLoadFlag(FALSE);
 	}
 	void Set_map() {
-		SetFogStartEnd(40.0f-15.f, 40.f);
-		SetFogColor(12, 6, 0);
+		SetFogStartEnd(0.f, 50.f);
+		SetFogColor(0, 0, 0);
 	}
 	void Start_map() {
 	}
 	void Delete_map() {
+		sky.Dispose();	 //空
 	}
 
 	//空描画
@@ -205,13 +214,15 @@ public:
 
 			if (
 				CheckCameraViewClip_Box(
-					VGet(float(x) - 0.5f, float(y) - 0.5f, float(z) - 0.5f), VGet(float(x) + 0.5f, float(y) + 0.5f, float(z) + 0.5f)
+					VGet(float(x)*cube_size_x - cube_size_x / 2, float(y)*cube_size_y - cube_size_y / 2, float(z)*cube_size_z - cube_size_z / 2),
+					VGet(float(x)*cube_size_x + cube_size_x / 2, float(y)*cube_size_y + cube_size_y / 2, float(z)*cube_size_z + cube_size_z / 2)
 				)
 				) {
 				continue;
 			}
 			DrawCube3D(
-				VGet(float(x) - 0.5f, float(y) - 0.5f, float(z) - 0.5f), VGet(float(x) + 0.5f, float(y) + 0.5f, float(z) + 0.5f),
+				VGet(float(x)*cube_size_x - cube_size_x / 2, float(y)*cube_size_y - cube_size_y / 2, float(z)*cube_size_z - cube_size_z / 2),
+				VGet(float(x)*cube_size_x + cube_size_x / 2, float(y)*cube_size_y + cube_size_y / 2, float(z)*cube_size_z + cube_size_z / 2),
 				GetColor(0, 255, 0),
 				GetColor(255, 255, 255),
 				TRUE
