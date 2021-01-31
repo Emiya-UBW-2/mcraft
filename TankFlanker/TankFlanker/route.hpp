@@ -83,7 +83,10 @@ public:
 				mine.spawn(VGet(0,0,0),MGetIdent());
 			}
 			//ライティング
-			Drawparts->Set_Light_Shadow(VGet(10.5f, 10.5f, 10.5f), VGet(-10.5f, -10.5f, -10.5f), VGet(0.5f, -0.5f, 0.5f), [&] { mapparts->map_draw(); });
+			Drawparts->Set_Light_Shadow(
+				VGet(mapparts->cube_size_x*mapparts->size_x, mapparts->cube_size_y*mapparts->size_y, mapparts->cube_size_z*mapparts->size_z),
+				VGet(-mapparts->cube_size_x*mapparts->size_x, -mapparts->cube_size_y*mapparts->size_y, -mapparts->cube_size_z*mapparts->size_z),
+				VGet(0.5f, -0.5f, 0.5f), [&] { mapparts->map_draw(); });
 			//描画するものを指定する(仮)
 			auto draw_by_shadow = [&] {
 				Drawparts->Draw_by_Shadow(
@@ -148,7 +151,7 @@ public:
 								mine.operation_2();
 							}
 						}
-						//
+						//pos
 						for (auto& c : chara) {
 							c.pos_HMD.y(1.8f);
 							c.pos += c.add_vec_buf;
@@ -164,7 +167,6 @@ public:
 								mapparts->pop_block(int(pos_.x() / mapparts->cube_size_x), int(pos_.y() / mapparts->cube_size_y), int(pos_.z() / mapparts->cube_size_z));
 								Drawparts->Update_far_Shadow([&] { mapparts->map_draw(); });
 							}
-							//pos
 						}
 						//campos,camvec,camupの指定
 						{
@@ -321,6 +323,8 @@ public:
 							Debugparts->debug(10, 10, float(GetNowHiPerformanceCount() - waits) / 1000.f);
 						}
 					}
+
+					mapparts->noise_.DrawRotaGraph(Drawparts->disp_x / 6, Drawparts->disp_y / 6, 2.f, 0.f, false);
 					//画面の反映
 					Drawparts->Screen_Flip(waits);
 					//終了判定
