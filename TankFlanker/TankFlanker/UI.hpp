@@ -95,17 +95,4 @@ public:
 			//èIÇÌÇË
 		}
 	}
-	void item_draw(const VECTOR_ref& pos, bool use_vr = true) {
-		int xs = 0, ys = 0, xp = 0, yp = 0;
-
-		FontHandle* font_large = (use_vr) ? &font72 : &font48;
-		FontHandle* font_big = (use_vr) ? &font36 : &font24;
-		FontHandle* font = (use_vr) ? &font24 : &font18;
-		const int font_largehight = (use_vr) ? y_r(72) : y_r(48);
-		const int font_bighight = (use_vr) ? y_r(36) : y_r(24);
-		const int fonthight = (use_vr) ? y_r(24) : y_r(18);
-		{
-			//èIÇÌÇË
-		}
-	}
 };

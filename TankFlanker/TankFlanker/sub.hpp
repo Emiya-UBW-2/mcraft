@@ -50,6 +50,8 @@ public:
 		}
 		void spawn(const VECTOR_ref& pos_, const MATRIX_ref& mat_H) {
 			this->xrad_p = 0;
+			this->spawn_pos = pos_;
+			this->spawn_mat = mat_H;
 
 			this->pos = this->spawn_pos;
 			this->mat = this->spawn_mat;

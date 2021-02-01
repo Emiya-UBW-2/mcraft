@@ -31,21 +31,21 @@ private:
 	}
 
 	float setNoise(float x_ = 0.0f, float y_ = 0.0f, float z_ = 0.0f) const noexcept {
-		const std::size_t x_int{ static_cast<std::size_t>(static_cast<std::size_t>(std::floor(x_)) & 255) };
-		const std::size_t y_int{ static_cast<std::size_t>(static_cast<std::size_t>(std::floor(y_)) & 255) };
-		const std::size_t z_int{ static_cast<std::size_t>(static_cast<std::size_t>(std::floor(z_)) & 255) };
+		const std::size_t x_int = static_cast<std::size_t>(static_cast<std::size_t>(std::floor(x_)) & 255);
+		const std::size_t y_int = static_cast<std::size_t>(static_cast<std::size_t>(std::floor(y_)) & 255);
+		const std::size_t z_int = static_cast<std::size_t>(static_cast<std::size_t>(std::floor(z_)) & 255);
 		x_ -= std::floor(x_);
 		y_ -= std::floor(y_);
 		z_ -= std::floor(z_);
-		const float u{ this->getFade(x_) };
-		const float v{ this->getFade(y_) };
-		const float w{ this->getFade(z_) };
-		const std::size_t a0{ static_cast<std::size_t>(this->p[x_int] + y_int) };
-		const std::size_t a1{ static_cast<std::size_t>(this->p[a0] + z_int) };
-		const std::size_t a2{ static_cast<std::size_t>(this->p[a0 + 1] + z_int) };
-		const std::size_t b0{ static_cast<std::size_t>(this->p[x_int + 1] + y_int) };
-		const std::size_t b1{ static_cast<std::size_t>(this->p[b0] + z_int) };
-		const std::size_t b2{ static_cast<std::size_t>(this->p[b0 + 1] + z_int) };
+		const float u = this->getFade(x_);
+		const float v = this->getFade(y_);
+		const float w = this->getFade(z_);
+		const std::size_t a0 = static_cast<std::size_t>(this->p[x_int] + y_int);
+		const std::size_t a1 = static_cast<std::size_t>(this->p[a0] + z_int);
+		const std::size_t a2 = static_cast<std::size_t>(this->p[a0 + 1] + z_int);
+		const std::size_t b0 = static_cast<std::size_t>(this->p[x_int + 1] + y_int);
+		const std::size_t b1 = static_cast<std::size_t>(this->p[b0] + z_int);
+		const std::size_t b2 = static_cast<std::size_t>(this->p[b0 + 1] + z_int);
 
 		return this->getLerp(w,
 			this->getLerp(v,
@@ -57,13 +57,13 @@ private:
 	}
 	float setOctaveNoise(const std::size_t octaves_, float x_ = 0.0f, float y_ = 0.0f, float z_ = 0.0f) const noexcept {
 		float noise_value = 0.f;
-		float amp{ 1.0 };
+		float amp = 1.0f;
 		for (std::size_t i = 0; i < octaves_; ++i) {
 			noise_value += this->setNoise(x_, y_, z_) * amp;
-			x_ *= 2.0;
-			y_ *= 2.0;
-			z_ *= 2.0;
-			amp *= 0.5;
+			x_ *= 2.0f;
+			y_ *= 2.0f;
+			z_ *= 2.0f;
+			amp *= 0.5f;
 		}
 		return noise_value;
 	}
@@ -88,7 +88,7 @@ public:
 	}
 	//オクターブ有りノイズを取得する
 	float octaveNoise(const std::size_t octaves_, float x_ = 0.0f, float y_ = 0.0f, float z_ = 0.0f) const noexcept {
-		return this->setOctaveNoise(octaves_, x_, y_, z_) * 0.5 + 0.5;
+		return this->setOctaveNoise(octaves_, x_, y_, z_) * 0.5f + 0.5f;
 	}
 };
 class Mapclass :Mainclass {
@@ -137,8 +137,11 @@ public:
 	std::vector<block_obj*> objs_canlook;
 
 	Mapclass() {
+		MV1::Load("data/sky/model.mv1", &sky, true);	 //空
+
+
 		noise_ = GraphHandle::Make(size_x, size_z, false);
-		PerlinNoise ns(10000);
+		PerlinNoise ns(GetRand(100));
 
 		mods.resize(mods.size() + 1);
 		mods.back().set();
@@ -162,27 +165,134 @@ public:
 		{
 			noise_.SetDraw_Screen(true);
 			int siz = 4;
+			//サポート生成
 			for (int z1 = 0; z1 < size_z * siz; z1++) {
 				for (int x1 = 0; x1 < size_x * siz; x1++) {
-					auto y = int(ns.octaveNoise(2,float(x1) / size_x, float(z1) / size_z) * 255);
+					auto y = int(ns.octaveNoise(2, float(x1) / size_x, float(z1) / size_z) * 255);
 					DrawPixel(x1 / siz, z1 / siz, GetColor(y, y, y));
 					if (x1%siz == 0 && z1%siz == 0) {
+						put_block_begin(x1 / siz - size_x / 2, -20 + 20 * y / 255 - 1, z1 / siz - size_z / 2, &mods.back());
 						put_block_begin(x1 / siz - size_x / 2, -20 + 20 * y / 255, z1 / siz - size_z / 2, &mods.back());
 					}
 				}
 			}
-			/*
-			for (int z1 = 0; z1 < size_z; z1++) {
-				for (int x1 = 0; x1 < size_x; x1++) {
-						put_block(x1 - size_x / 2, 0, z1 - size_z / 2, &mods.back());
+			//傾斜込みブロック生成
+			for (int z1 = 0; z1 < size_z * siz; z1++) {
+				for (int x1 = 0; x1 < size_x * siz; x1++) {
+					auto y = int(ns.octaveNoise(2, float(x1) / size_x, float(z1) / size_z) * 255);
+					if (x1%siz == 0 && z1%siz == 0) {
+						put_block(x1 / siz - size_x / 2, -20 + 20 * y / 255 + 1, z1 / siz - size_z / 2, &mods.back());
+					}
 				}
 			}
-			//*/
+			//再生成
+			for (int z1 = 0; z1 < size_z * siz; z1++) {
+				for (int x1 = 0; x1 < size_x * siz; x1++) {
+					auto y = int(ns.octaveNoise(2, float(x1) / size_x, float(z1) / size_z) * 255);
+					if (x1%siz == 0 && z1%siz == 0) {
+						pop_block(x1 / siz - size_x / 2, -20 + 20 * y / 255 + 1, z1 / siz - size_z / 2);
+						put_block(x1 / siz - size_x / 2, -20 + 20 * y / 255 + 1, z1 / siz - size_z / 2, &mods.back());
+					}
+				}
+			}
+			//再生成
+			for (int z1 = 0; z1 < size_z * siz; z1++) {
+				for (int x1 = 0; x1 < size_x * siz; x1++) {
+					auto y = int(ns.octaveNoise(2, float(x1) / size_x, float(z1) / size_z) * 255);
+					if (x1%siz == 0 && z1%siz == 0) {
+						pop_block(x1 / siz - size_x / 2, -20 + 20 * y / 255 + 1, z1 / siz - size_z / 2);
+						put_block(x1 / siz - size_x / 2, -20 + 20 * y / 255 + 1, z1 / siz - size_z / 2, &mods.back());
+					}
+				}
+			}
+			//再生成
+			for (int z1 = 0; z1 < size_z * siz; z1++) {
+				for (int x1 = 0; x1 < size_x * siz; x1++) {
+					auto y = int(ns.octaveNoise(2, float(x1) / size_x, float(z1) / size_z) * 255);
+					if (x1%siz == 0 && z1%siz == 0) {
+						pop_block(x1 / siz - size_x / 2, -20 + 20 * y / 255 + 1, z1 / siz - size_z / 2);
+						put_block(x1 / siz - size_x / 2, -20 + 20 * y / 255 + 1, z1 / siz - size_z / 2, &mods.back());
+					}
+				}
+			}
+			//サポート外し
+			{
+				for (int z1 = 0; z1 < size_z * siz; z1++) {
+					for (int x1 = 0; x1 < size_x * siz; x1++) {
+						auto y = int(ns.octaveNoise(2, float(x1) / size_x, float(z1) / size_z) * 255);
+						if (x1%siz == 0 && z1%siz == 0) {
+							pop_block(x1 / siz - size_x / 2, -20 + 20 * y / 255 - 1, z1 / siz - size_z / 2);
+							auto& obj_t = objs[get_id(x1 / siz - size_x / 2, -20 + 20 * y / 255 + 1, z1 / siz - size_z / 2)];
+							if (
+								//((obj_t.near_[0]->id == 0x40)) ||
+								((obj_t.id & 0x70) == 0x00) ||
+								(obj_t.id == 0x00)
+								) {
+								pop_block(x1 / siz - size_x / 2, -20 + 20 * y / 255, z1 / siz - size_z / 2);
+							}
+						}
+					}
+				}
+				{
+					int x1 = 0;
+					for (int z1 = 0; z1 < size_z * siz; z1++) {
+						{
+							x1 = 0;
+							auto y = int(ns.octaveNoise(2, float(x1) / size_x, float(z1) / size_z) * 255);
+							if (x1%siz == 0 && z1%siz == 0) {
+								pop_block(x1 / siz - size_x / 2, -20 + 20 * y / 255 - 1, z1 / siz - size_z / 2);
+								pop_block(x1 / siz - size_x / 2, -20 + 20 * y / 255, z1 / siz - size_z / 2);
+								pop_block(x1 / siz - size_x / 2, -20 + 20 * y / 255 + 1, z1 / siz - size_z / 2);
+							}
+						}
+						{
+							x1 = size_x * siz - 1;
+							auto y = int(ns.octaveNoise(2, float(x1) / size_x, float(z1) / size_z) * 255);
+							if (x1%siz == 0 && z1%siz == 0) {
+								pop_block(x1 / siz - size_x / 2, -20 + 20 * y / 255 - 1, z1 / siz - size_z / 2);
+								pop_block(x1 / siz - size_x / 2, -20 + 20 * y / 255, z1 / siz - size_z / 2);
+								pop_block(x1 / siz - size_x / 2, -20 + 20 * y / 255 + 1, z1 / siz - size_z / 2);
+							}
+						}
+					}
+				}
+				{
+					int z1 = 0;
+					for (int x1 = 0; x1 < size_x * siz; x1++) {
+						{
+							z1 = 0;
+							auto y = int(ns.octaveNoise(2, float(x1) / size_x, float(z1) / size_z) * 255);
+							if (x1%siz == 0 && z1%siz == 0) {
+								pop_block(x1 / siz - size_x / 2, -20 + 20 * y / 255 - 1, z1 / siz - size_z / 2);
+								pop_block(x1 / siz - size_x / 2, -20 + 20 * y / 255, z1 / siz - size_z / 2);
+								pop_block(x1 / siz - size_x / 2, -20 + 20 * y / 255 + 1, z1 / siz - size_z / 2);
+							}
+						}
+						{
+							z1 = size_z * siz - 1;
+							auto y = int(ns.octaveNoise(2, float(x1) / size_x, float(z1) / size_z) * 255);
+							if (x1%siz == 0 && z1%siz == 0) {
+								pop_block(x1 / siz - size_x / 2, -20 + 20 * y / 255 - 1, z1 / siz - size_z / 2);
+								pop_block(x1 / siz - size_x / 2, -20 + 20 * y / 255, z1 / siz - size_z / 2);
+								pop_block(x1 / siz - size_x / 2, -20 + 20 * y / 255 + 1, z1 / siz - size_z / 2);
+							}
+						}
+					}
+				}
+			}
 		}
 
 
 	}
 	~Mapclass() {
+	}
+
+	int get_id(int x, int y, int z) {
+		x = std::clamp(x, -size_x / 2, size_x / 2);
+		y = std::clamp(y, -size_y / 2, size_y / 2);
+		z = std::clamp(z, -size_z / 2, size_z / 2);
+		auto id = (x + size_x / 2)*(size_y + 1) * (size_z + 1) + (y + size_y / 2) * (size_z + 1) + (z + size_z / 2);
+		return id;
 	}
 
 	void set_block(block_obj& m) {
@@ -279,7 +389,7 @@ public:
 					m.id = 0x81;
 				}
 				else if (
-					(m.near_[0]->id == 0x00 || m.near_[0]->id == 0x11 || m.near_[0]->id == 0x21 || m.near_[0]->id == 0x81 || m.near_[0]->id == 0x88) 
+					(m.near_[0]->id == 0x00 || m.near_[0]->id == 0x11 || m.near_[0]->id == 0x21 || m.near_[0]->id == 0x81 || m.near_[0]->id == 0x88)
 					&&
 					(m.near_[1]->id == 0x18 || m.near_[1]->id == 0x28 || m.near_[1]->id == 0x42)
 					&&
@@ -349,6 +459,7 @@ public:
 			m.id = 0x00;
 		}
 		m.obj.model.SetPosition(VGet(float(m.x)*cube_size_x, float(m.y)*cube_size_y, float(m.z)*cube_size_z));
+		m.obj.model.SetupCollInfo(1, 1, 1);
 	}
 	void push_canlook(block_obj& m) {
 		if (m.ptr != nullptr) {
@@ -394,7 +505,7 @@ public:
 		if (abs(x) > size_x / 2 || abs(y) > size_y / 2 || abs(z) > size_z / 2) {
 			return;
 		}
-		auto id = (x + size_x / 2)*(size_y + 1) * (size_z + 1) + (y + size_y / 2) * (size_z + 1) + (z + size_z / 2);
+		auto id = get_id(x, y, z);
 		if (objs[id].ptr != nullptr) {
 			return;
 		}
@@ -408,7 +519,7 @@ public:
 		if (abs(x) > size_x / 2 || abs(y) > size_y / 2 || abs(z) > size_z / 2) {
 			return;
 		}
-		auto id = (x + size_x / 2)*(size_y + 1) * (size_z + 1) + (y + size_y / 2) * (size_z + 1) + (z + size_z / 2);
+		auto id = get_id(x, y, z);
 		if (objs[id].ptr != nullptr) {
 			return;
 		}
@@ -420,60 +531,63 @@ public:
 	}
 
 	void pop_block(int x, int y, int z) {
-		auto id = (x + size_x / 2)*(size_y + 1) * (size_z + 1) + (y + size_y / 2) * (size_z + 1) + (z + size_z / 2);
-		objs[id].ptr = nullptr;
-		objs[id].obj.model.Dispose();
-		objs[id].x = x;
-		objs[id].y = y;
-		objs[id].z = z;
-		{
-			size_t ids = SIZE_MAX;
-			for (auto& m : objs_canlook) {
-				if (&objs[id] == m) {
-					ids = &m - &objs_canlook[0];
-					break;
-				}
-			}
-			if (ids != SIZE_MAX) {
-				objs_canlook.erase(objs_canlook.begin() + ids);
-			}
-		}
-
-		for (auto& n : objs[id].near_) {
-			if (n != nullptr) {
-				bool p = true;
-				for (auto& o : objs_canlook) {
-					if (n == o) {
-						p = false;
+		auto id = get_id(x, y, z);
+		if (objs[id].ptr != nullptr) {
+			objs[id].ptr = nullptr;
+			objs[id].obj.model.Dispose();
+			objs[id].x = x;
+			objs[id].y = y;
+			objs[id].z = z;
+			{
+				size_t ids = SIZE_MAX;
+				for (auto& m : objs_canlook) {
+					if (&objs[id] == m) {
+						ids = &m - &objs_canlook[0];
 						break;
 					}
 				}
-				if (p) {
-					push_canlook(*n);
+				if (ids != SIZE_MAX) {
+					objs_canlook.erase(objs_canlook.begin() + ids);
+				}
+			}
+
+			for (auto& n : objs[id].near_) {
+				if (n != nullptr) {
+					bool p = true;
+					for (auto& o : objs_canlook) {
+						if (n == o) {
+							p = false;
+							break;
+						}
+					}
+					if (p) {
+						push_canlook(*n);
+					}
 				}
 			}
 		}
 	}
 
-	void Ready_map(std::string dir) {
-		SetUseASyncLoadFlag(TRUE);
-		MV1::Load("data/sky/model.mv1", &sky, true);	 //空
-		SetUseASyncLoadFlag(FALSE);
-
-
-		//ノイズ生成
-		{
-
+	auto getcol_line_floor(const VECTOR_ref& startpos) {
+		auto id = get_id(int(startpos.x() / cube_size_x), int((startpos.y()) / cube_size_y), int(startpos.z() / cube_size_z));
+		if (objs[id].ptr != nullptr) {
+			auto p = objs[id].obj.model.CollCheck_Line(VECTOR_ref(startpos) + VGet(0, 0.125f, 0), startpos);
+			return p;
 		}
 	}
+	void Ready_map(std::string dir) {
+		SetUseASyncLoadFlag(TRUE);
+		//MV1::Load("data/sky/model.mv1", &sky, true);	 //空
+		SetUseASyncLoadFlag(FALSE);
+	}
 	void Set_map() {
-		SetFogStartEnd(0.f, 50.f);
+		SetFogStartEnd(50.f, 150.f);
 		SetFogColor(0, 0, 0);
 	}
 	void Start_map() {
 	}
 	void Delete_map() {
-		sky.Dispose();	 //空
+		//sky.Dispose();	 //空
 	}
 
 	//空描画
@@ -488,8 +602,15 @@ public:
 		return;
 	}
 	//
+	void map_draw_all() {
+		for (auto& m : objs_canlook) {
+			m->obj.model.DrawModel();
+		}
+		return;
+	}
+	//
 	void map_draw() {
-		int p = 0;
+		VECTOR_ref siz;
 		for (auto& m : objs_canlook) {
 			if (
 				CheckCameraViewClip_Box(
@@ -499,24 +620,12 @@ public:
 				) {
 				continue;
 			}
-			m->obj.model.DrawModel();
-			/*
-			if (
-				CheckCameraViewClip_Box(
-					VGet(float(m->x)*cube_size_x - cube_size_x / 2, float(m->y)*cube_size_y - cube_size_y / 2, float(m->z)*cube_size_z - cube_size_z / 2),
-					VGet(float(m->x)*cube_size_x + cube_size_x / 2, float(m->y)*cube_size_y + cube_size_y / 2, float(m->z)*cube_size_z + cube_size_z / 2)
-				)
-				) {
+			siz = (m->obj.model.GetPosition() - GetCameraPosition());
+			siz.y(0.f);
+			if (siz.size() >= 50.f) {
 				continue;
 			}
-			DrawCube3D(
-				VGet(float(m->x)*cube_size_x - cube_size_x / 2, float(m->y)*cube_size_y - cube_size_y / 2, float(m->z)*cube_size_z - cube_size_z / 2),
-				VGet(float(m->x)*cube_size_x + cube_size_x / 2, float(m->y)*cube_size_y + cube_size_y / 2, float(m->z)*cube_size_z + cube_size_z / 2),
-				GetColor(0, 255, 0),
-				GetColor(255, 255, 255),
-				TRUE
-			);
-			//*/
+			m->obj.model.DrawModel();
 		}
 		return;
 	}
