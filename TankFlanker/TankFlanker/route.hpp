@@ -161,15 +161,16 @@ public:
 										{
 											pp = mapparts->getcol_line_floor(pos_t);
 											if (c.add_ypos <= 0.f && pp.HitFlag==1) {
-												pos_t.y(pp.HitPosition.y);
+												pos_t = pp.HitPosition;
 												c.add_ypos = 0.f;
 											}
 											else {
 												pos_t.yadd(c.add_ypos);
 												c.add_ypos += M_GR / std::powf(fps_, 2.f);
 												//•œ‹A
-												if (pos_t.y() <= -5.f) {
+												if (pos_t.y() <= -20.f) {
 													pos_t.y(0.f);
+													c.add_ypos = 0.f;
 												}
 											}
 										}

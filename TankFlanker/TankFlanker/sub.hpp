@@ -67,6 +67,7 @@ public:
 		}
 
 		void Draw_chara() {
+			DrawLine3D(this->pos.get(), (this->pos+this->pos_HMD).get(), GetColor(255, 0, 0));
 			this->body.DrawModel();
 			//this->col.DrawModel();
 		}
