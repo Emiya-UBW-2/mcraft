@@ -26,9 +26,6 @@
     <ClInclude Include="UI.hpp">
       <Filter>ソース ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="HostPass.hpp">
-      <Filter>ソース ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="map.hpp">
       <Filter>ソース ファイル</Filter>
     </ClInclude>

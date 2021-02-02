@@ -28,7 +28,6 @@ public:
 		MATRIX_ref spawn_mat;		//spawn
 		VECTOR_ref add_vec;			//移動ベクトル
 		VECTOR_ref add_vec_buf;		//移動ベクトルバッファ
-		VECTOR_ref add_vec_real;	//実際の移動ベクトル
 		float xrad_p = 0.f;			//マウスエイム用変数確保
 		bool wkey = false;
 		bool skey = false;
@@ -62,20 +61,17 @@ public:
 			this->body_xrad = 0.f;//胴体角度
 			this->body_yrad = 0.f;//胴体角度
 		}
-
 		void start() {
 		}
-
 		void Draw_chara() {
 			DrawLine3D(this->pos.get(), (this->pos+this->pos_HMD).get(), GetColor(255, 0, 0));
 			this->body.DrawModel();
 			//this->col.DrawModel();
 		}
-
 		void Delete_chara() {
 			this->body.Dispose();
 		}
-
+		//操作
 		void operation_2_1(const bool& cannotmove, int32_t x_m, int32_t y_m) {
 			if (!this->wkey) {
 				this->running = false;
@@ -177,6 +173,8 @@ public:
 				if ((ptr_.turn && ptr_.now) != *oldv_1_1) {
 					this->rec_HMD = VGet(this->pos_HMD.x(), 0.f, this->pos_HMD.z());
 				}
+				this->pos_HMD = this->pos_HMD - this->rec_HMD;
+
 				*oldv_1_1 = ptr_.turn && ptr_.now;
 			}
 		}

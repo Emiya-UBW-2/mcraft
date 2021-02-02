@@ -13,8 +13,6 @@ class main_c : Mainclass {
 	//操作
 	switchs TPS;
 	float xr_cam = 0.f,yr_cam = 0.f;
-	//データ
-	MV1_COLL_RESULT_POLY pp;
 	//オブジェ
 	std::vector<Chara> chara;		//キャラ
 	//仮
@@ -49,13 +47,13 @@ public:
 		outScreen2 = GraphHandle::Make(deskx, desky, true);															//TPS用描画スクリーン
 		auto mapparts = std::make_unique<Mapclass>();																//MAP
 		//model
-		auto font = FontHandle::Create(18);
+		//auto font = FontHandle::Create(18);
 		UIparts->load_window("オブジェクト");	//ロード画面1
 		do {
 			//マップ読み込み
-			mapparts->Ready_map("data/map_new2");
+			mapparts->Ready("data/map_new2");
 			UIparts->load_window("マップ");
-			mapparts->Set_map();
+			mapparts->Set();
 			//キャラ設定
 			chara.resize(1);
 			auto& mine = chara[0];
@@ -76,9 +74,10 @@ public:
 					mapparts->map_draw();
 					for (auto& c : this->chara) {
 						c.Draw_chara();
+						//
 						SetUseZBuffer3D(FALSE);
 						SetUseLighting(FALSE);
-						auto pos_ = (c.pos + c.pos_HMD - c.rec_HMD) + c.mat.zvec()*(Drawparts->use_vr ? 1.f : -1.f)*3.f;
+						auto pos_ = (c.pos + c.pos_HMD) + c.mat.zvec()*(Drawparts->use_vr ? 1.f : -1.f)*3.f;
 						DrawCube3D(
 							VGet(
 								float(int(pos_.x() / mapparts->cube_size_x)) * mapparts->cube_size_x - mapparts->cube_size_x / 2,
@@ -91,13 +90,14 @@ public:
 							GetColor(255, 255, 255), GetColor(255, 255, 255), FALSE);
 						SetUseZBuffer3D(TRUE);
 						SetUseLighting(TRUE);
+						//
 					}
 				});
 			};
 			//開始
 			{
 				//環境
-				mapparts->Start_map();
+				mapparts->Start();
 				//プレイヤー操作変数群
 				this->TPS.ready(false);
 				oldv_1_1 = true;
@@ -129,10 +129,10 @@ public:
 							}
 							else {
 								mine.operation(false);
-								mine.pos_HMD.y(1.8f);
-								//common
-								mine.operation_2();
+								mine.pos_HMD.y(1.8f);//仮
 							}
+							//common
+							mine.operation_2();
 						}
 						//pos
 						for (auto& c : chara) {
@@ -140,67 +140,72 @@ public:
 							{
 								//壁その他の判定
 								{
+									VECTOR_ref pos_t3 = VECTOR_ref(VGet(c.pos_HMD.x(), 0.f, c.pos_HMD.z()));
 									//VR用
 									{
+										VECTOR_ref pos_t2 = c.pos + VECTOR_ref(VGet(c.pos_HMD_old.x(), 0.f, c.pos_HMD_old.z()));
+										VECTOR_ref pos_t = c.pos + pos_t3;
+										//壁
 										/*
-										VECTOR_ref pos_t2 = c.pos + (VECTOR_ref(VGet(c.pos_HMD_old.x(), 0.f, c.pos_HMD_old.z())) - c.rec_HMD);
-										VECTOR_ref pos_t = c.pos + (VECTOR_ref(VGet(c.pos_HMD.x(), 0.f, c.pos_HMD.z())) - c.rec_HMD);
-										mapparts->map_col_wall(pos_t2, &pos_t);//壁
-										c.pos = pos_t - (VECTOR_ref(VGet(c.pos_HMD.x(), 0.f, c.pos_HMD.z())) - c.rec_HMD);
-										*/
+										mapparts->map_col_wall(pos_t2, &pos_t);
+										//*/
+										c.pos = pos_t - pos_t3;
 									}
 									//共通
 									{
-										VECTOR_ref pos_t3 = VECTOR_ref(VGet(c.pos_HMD.x(), 0.f, c.pos_HMD.z())) - c.rec_HMD;
 										VECTOR_ref pos_t2 = c.pos + pos_t3;
 										VECTOR_ref pos_t = pos_t2 + c.add_vec;
+										//壁
 										/*
-										mapparts->map_col_wall(pos_t2, &pos_t);//壁
-										*/
+										mapparts->map_col_wall(pos_t2, &pos_t);
+										//*/
 										//落下
 										{
 											//ブロック自身の座標で床判定ver
 											//*
-											auto ptp = mapparts->getcol_line_floor_nodx_2(pos_t);
-											if (c.add_ypos <= 0.f && ptp.y() != -100.f) {
-												pos_t = ptp;
-												c.add_ypos = 0.f;
-											}
-											else {
-												pos_t.yadd(c.add_ypos);
-												c.add_ypos += M_GR / std::powf(fps_, 2.f);
-												//復帰
-												if (pos_t.y() <= -15.f) {
-													pos_t.y(0.f);
+											{
+												auto pp = mapparts->getcol_line_floor_nodx_2(pos_t);
+												if (c.add_ypos <= 0.f && pp.y() != -100.f) {
+													pos_t = pp;
 													c.add_ypos = 0.f;
+												}
+												else {
+													pos_t.yadd(c.add_ypos);
+													c.add_ypos += M_GR / std::powf(fps_, 2.f);
+													//復帰
+													if (pos_t.y() <= -15.f) {
+														pos_t.y(0.f);
+														c.add_ypos = 0.f;
+													}
 												}
 											}
 											//*/
 											//問題が起こるver
 											/*
-											pp = mapparts->getcol_line_floor(pos_t);
-											if (c.add_ypos <= 0.f && pp.HitFlag==1) {
-												pos_t = pp.HitPosition;
-												c.add_ypos = 0.f;
-											}
-											else {
-												pos_t.yadd(c.add_ypos);
-												c.add_ypos += M_GR / std::powf(fps_, 2.f);
-												//復帰
-												if (pos_t.y() <= -20.f) {
-													pos_t.y(0.f);
+											{
+												auto pp = mapparts->getcol_line_floor(pos_t);
+												if (c.add_ypos <= 0.f && pp.HitFlag == 1) {
+													pos_t = pp.HitPosition;
 													c.add_ypos = 0.f;
+												}
+												else {
+													pos_t.yadd(c.add_ypos);
+													c.add_ypos += M_GR / std::powf(fps_, 2.f);
+													//復帰
+													if (pos_t.y() <= -20.f) {
+														pos_t.y(0.f);
+														c.add_ypos = 0.f;
+													}
 												}
 											}
 											//*/
 										}
 										//反映
 										c.pos = pos_t - pos_t3;
-										//c.add_vec_real = pos_t - pos_t2;
 									}
 								}
 							}
-							auto pos_ = (c.pos + c.pos_HMD - c.rec_HMD) + c.mat.zvec()*(Drawparts->use_vr ? 1.f : -1.f)*3.f;
+							auto pos_ = (c.pos + c.pos_HMD) + c.mat.zvec()*(Drawparts->use_vr ? 1.f : -1.f)*3.f;
 							//ブロック置く
 							if (c.shot.push()) {
 								mapparts->put_block(int(pos_.x() / mapparts->cube_size_x), int(pos_.y() / mapparts->cube_size_y), int(pos_.z() / mapparts->cube_size_z), &mapparts->mods.back());
@@ -215,10 +220,9 @@ public:
 						//campos,camvec,camupの指定
 						{
 							auto& ct = mine;
-							camera_main.set_cam_pos(ct.pos + ct.pos_HMD - ct.rec_HMD, (ct.pos + ct.pos_HMD - ct.rec_HMD) + ct.mat.zvec()*(Drawparts->use_vr ? 1.f : -1.f), ct.mat.yvec());
+							camera_main.set_cam_pos(ct.pos + ct.pos_HMD, (ct.pos + ct.pos_HMD) + ct.mat.zvec()*(Drawparts->use_vr ? 1.f : -1.f), ct.mat.yvec());
 						}
 						Set3DSoundListenerPosAndFrontPosAndUpVec(camera_main.campos.get(), camera_main.camvec.get(), camera_main.camup.get());
-						UpdateEffekseer3D();
 						//VR空間に適用
 						Drawparts->Move_Player();
 						//1P描画
@@ -261,16 +265,6 @@ public:
 									}
 									else {
 										this->UI_Screen.DrawGraph(0, 0, TRUE);
-									}
-
-									{
-										int yy = 500;
-										font.DrawStringFormat(200, yy, GetColor(255, 0, 0), "mine: %5.2f,%5.2f,%5.2f", mine.pos.x(), mine.pos.y(), mine.pos.z()); yy += 20;
-
-										font.DrawStringFormat(200, yy, GetColor(255, 0, 0), "hit : %s", pp.HitFlag == 1 ? "true" : "false"); yy += 20;
-										if (pp.HitFlag == 1) {
-											font.DrawStringFormat(200, yy, GetColor(255, 0, 0), "pos : %5.2f,%5.2f,%5.2f", pp.HitPosition.x, pp.HitPosition.y, pp.HitPosition.z); yy += 20;
-										}
 									}
 								}
 							}, camera_main);
@@ -365,7 +359,7 @@ public:
 					c.Delete_chara();
 				}
 				chara.clear();
-				mapparts->Delete_map();
+				mapparts->Delete();
 				Drawparts->Delete_Shadow();
 			}
 			//
