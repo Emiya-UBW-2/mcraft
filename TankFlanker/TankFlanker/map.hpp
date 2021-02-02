@@ -177,8 +177,8 @@ public:
 					auto y = int(ns.octaveNoise(2, float(x1) / size_x, float(z1) / size_z) * 255);
 					DrawPixel(x1 / siz, z1 / siz, GetColor(y, y, y));
 					if (x1%siz == 0 && z1%siz == 0) {
-						put_block_begin(x1 / siz - size_x / 2, -20 + 20 * y / 255 - 1, z1 / siz - size_z / 2, &mods.back());
-						put_block_begin(x1 / siz - size_x / 2, -20 + 20 * y / 255, z1 / siz - size_z / 2, &mods.back());
+						put_block_begin(x1 / siz - size_x / 2, -20 + 20*y / 255 - 1, z1 / siz - size_z / 2, &mods.back());
+						put_block_begin(x1 / siz - size_x / 2, -20 + 20*y / 255, z1 / siz - size_z / 2, &mods.back());
 					}
 				}
 			}
@@ -187,7 +187,7 @@ public:
 				for (int x1 = 0; x1 < size_x * siz; x1++) {
 					auto y = int(ns.octaveNoise(2, float(x1) / size_x, float(z1) / size_z) * 255);
 					if (x1%siz == 0 && z1%siz == 0) {
-						put_block(x1 / siz - size_x / 2, -20 + 20 * y / 255 + 1, z1 / siz - size_z / 2, &mods.back());
+						put_block(x1 / siz - size_x / 2, -20 + 20*y / 255 + 1, z1 / siz - size_z / 2, &mods.back());
 					}
 				}
 			}
@@ -196,8 +196,8 @@ public:
 				for (int x1 = 0; x1 < size_x * siz; x1++) {
 					auto y = int(ns.octaveNoise(2, float(x1) / size_x, float(z1) / size_z) * 255);
 					if (x1%siz == 0 && z1%siz == 0) {
-						pop_block(x1 / siz - size_x / 2, -20 + 20 * y / 255 + 1, z1 / siz - size_z / 2);
-						put_block(x1 / siz - size_x / 2, -20 + 20 * y / 255 + 1, z1 / siz - size_z / 2, &mods.back());
+						pop_block(x1 / siz - size_x / 2, -20 + 20*y / 255 + 1, z1 / siz - size_z / 2);
+						put_block(x1 / siz - size_x / 2, -20 + 20*y / 255 + 1, z1 / siz - size_z / 2, &mods.back());
 					}
 				}
 			}
@@ -206,8 +206,8 @@ public:
 				for (int x1 = 0; x1 < size_x * siz; x1++) {
 					auto y = int(ns.octaveNoise(2, float(x1) / size_x, float(z1) / size_z) * 255);
 					if (x1%siz == 0 && z1%siz == 0) {
-						pop_block(x1 / siz - size_x / 2, -20 + 20 * y / 255 + 1, z1 / siz - size_z / 2);
-						put_block(x1 / siz - size_x / 2, -20 + 20 * y / 255 + 1, z1 / siz - size_z / 2, &mods.back());
+						pop_block(x1 / siz - size_x / 2, -20 + 20*y / 255 + 1, z1 / siz - size_z / 2);
+						put_block(x1 / siz - size_x / 2, -20 + 20*y / 255 + 1, z1 / siz - size_z / 2, &mods.back());
 					}
 				}
 			}
@@ -216,8 +216,8 @@ public:
 				for (int x1 = 0; x1 < size_x * siz; x1++) {
 					auto y = int(ns.octaveNoise(2, float(x1) / size_x, float(z1) / size_z) * 255);
 					if (x1%siz == 0 && z1%siz == 0) {
-						pop_block(x1 / siz - size_x / 2, -20 + 20 * y / 255 + 1, z1 / siz - size_z / 2);
-						put_block(x1 / siz - size_x / 2, -20 + 20 * y / 255 + 1, z1 / siz - size_z / 2, &mods.back());
+						pop_block(x1 / siz - size_x / 2, -20 + 20*y / 255 + 1, z1 / siz - size_z / 2);
+						put_block(x1 / siz - size_x / 2, -20 + 20*y / 255 + 1, z1 / siz - size_z / 2, &mods.back());
 					}
 				}
 			}
@@ -227,13 +227,13 @@ public:
 					for (int x1 = 0; x1 < size_x * siz; x1++) {
 						auto y = int(ns.octaveNoise(2, float(x1) / size_x, float(z1) / size_z) * 255);
 						if (x1%siz == 0 && z1%siz == 0) {
-							pop_block(x1 / siz - size_x / 2, -20 + 20 * y / 255 - 1, z1 / siz - size_z / 2);
-							auto& obj_t = objs[get_id(x1 / siz - size_x / 2, -20 + 20 * y / 255 + 1, z1 / siz - size_z / 2)];
+							pop_block(x1 / siz - size_x / 2, -20 + 20*y / 255 - 1, z1 / siz - size_z / 2);
+							auto& obj_t = objs[get_id(x1 / siz - size_x / 2, -20 + 20*y / 255 + 1, z1 / siz - size_z / 2)];
 							if (
 								((obj_t.id & 0x70) == 0x00) ||
 								(obj_t.id == 0x00)
 								) {
-								pop_block(x1 / siz - size_x / 2, -20 + 20 * y / 255, z1 / siz - size_z / 2);
+								pop_block(x1 / siz - size_x / 2, -20 + 20*y / 255, z1 / siz - size_z / 2);
 							}
 						}
 					}
@@ -245,18 +245,18 @@ public:
 							x1 = 0;
 							auto y = int(ns.octaveNoise(2, float(x1) / size_x, float(z1) / size_z) * 255);
 							if (x1%siz == 0 && z1%siz == 0) {
-								pop_block(x1 / siz - size_x / 2, -20 + 20 * y / 255 - 1, z1 / siz - size_z / 2);
-								pop_block(x1 / siz - size_x / 2, -20 + 20 * y / 255, z1 / siz - size_z / 2);
-								pop_block(x1 / siz - size_x / 2, -20 + 20 * y / 255 + 1, z1 / siz - size_z / 2);
+								pop_block(x1 / siz - size_x / 2, -20 + 20*y / 255 - 1, z1 / siz - size_z / 2);
+								pop_block(x1 / siz - size_x / 2, -20 + 20*y / 255, z1 / siz - size_z / 2);
+								pop_block(x1 / siz - size_x / 2, -20 + 20*y / 255 + 1, z1 / siz - size_z / 2);
 							}
 						}
 						{
 							x1 = size_x * siz - 1;
 							auto y = int(ns.octaveNoise(2, float(x1) / size_x, float(z1) / size_z) * 255);
 							if (x1%siz == 0 && z1%siz == 0) {
-								pop_block(x1 / siz - size_x / 2, -20 + 20 * y / 255 - 1, z1 / siz - size_z / 2);
-								pop_block(x1 / siz - size_x / 2, -20 + 20 * y / 255, z1 / siz - size_z / 2);
-								pop_block(x1 / siz - size_x / 2, -20 + 20 * y / 255 + 1, z1 / siz - size_z / 2);
+								pop_block(x1 / siz - size_x / 2, -20 + 20*y / 255 - 1, z1 / siz - size_z / 2);
+								pop_block(x1 / siz - size_x / 2, -20 + 20*y / 255, z1 / siz - size_z / 2);
+								pop_block(x1 / siz - size_x / 2, -20 + 20*y / 255 + 1, z1 / siz - size_z / 2);
 							}
 						}
 					}
@@ -268,18 +268,18 @@ public:
 							z1 = 0;
 							auto y = int(ns.octaveNoise(2, float(x1) / size_x, float(z1) / size_z) * 255);
 							if (x1%siz == 0 && z1%siz == 0) {
-								pop_block(x1 / siz - size_x / 2, -20 + 20 * y / 255 - 1, z1 / siz - size_z / 2);
-								pop_block(x1 / siz - size_x / 2, -20 + 20 * y / 255, z1 / siz - size_z / 2);
-								pop_block(x1 / siz - size_x / 2, -20 + 20 * y / 255 + 1, z1 / siz - size_z / 2);
+								pop_block(x1 / siz - size_x / 2, -20 + 20*y / 255 - 1, z1 / siz - size_z / 2);
+								pop_block(x1 / siz - size_x / 2, -20 + 20*y / 255, z1 / siz - size_z / 2);
+								pop_block(x1 / siz - size_x / 2, -20 + 20*y / 255 + 1, z1 / siz - size_z / 2);
 							}
 						}
 						{
 							z1 = size_z * siz - 1;
 							auto y = int(ns.octaveNoise(2, float(x1) / size_x, float(z1) / size_z) * 255);
 							if (x1%siz == 0 && z1%siz == 0) {
-								pop_block(x1 / siz - size_x / 2, -20 + 20 * y / 255 - 1, z1 / siz - size_z / 2);
-								pop_block(x1 / siz - size_x / 2, -20 + 20 * y / 255, z1 / siz - size_z / 2);
-								pop_block(x1 / siz - size_x / 2, -20 + 20 * y / 255 + 1, z1 / siz - size_z / 2);
+								pop_block(x1 / siz - size_x / 2, -20 + 20*y / 255 - 1, z1 / siz - size_z / 2);
+								pop_block(x1 / siz - size_x / 2, -20 + 20*y / 255, z1 / siz - size_z / 2);
+								pop_block(x1 / siz - size_x / 2, -20 + 20*y / 255 + 1, z1 / siz - size_z / 2);
 							}
 						}
 					}
