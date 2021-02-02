@@ -622,6 +622,26 @@ public:
 		}
 	}
 
+	VECTOR_ref getcol_line_floor_nodx_2(const VECTOR_ref& startpos) {
+		auto id = get_id(int(startpos.x() / cube_size_x), int((startpos.y()) / cube_size_y), int(startpos.z() / cube_size_z));
+		VECTOR_ref buf = startpos;
+		float y = -100.f;
+		for (auto& n : objs[id].near_) {
+			if (n != nullptr) {
+				if (n->ptr != nullptr) {
+					n->obj.model.SetOpacityRate(0.5f);
+					auto p = n->obj.model.GetPosition().y() - cube_size_y * 0.51f;
+					if (y <= p) {
+						y = p;
+						buf.y(p);
+					}
+				}
+			}
+		}
+		buf.y(y);
+		return buf;
+	}
+
 	auto getcol_line_floor(const VECTOR_ref& startpos) {
 		auto id = get_id(int(startpos.x() / cube_size_x), int((startpos.y()) / cube_size_y), int(startpos.z() / cube_size_z));
 		if (objs[id].ptr != nullptr) {
