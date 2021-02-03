@@ -122,7 +122,7 @@ private:
 	private:
 	public:
 		block_mod* ptr = nullptr;
-		block_mod obj;
+		MV1 model;
 		size_t id = 0;
 		int x = 0;
 		int y = 0;
@@ -137,10 +137,10 @@ private:
 	int zplus = 0;
 
 	MV1 sky;			//‹ó
-public:
-	std::vector<block_mod> mods;
 	std::vector<block_obj> objs;
 	std::vector<block_obj*> objs_canlook;
+public:
+	std::vector<block_mod> mods;
 
 	Mapclass() {
 		MV1::Load("data/sky/model.mv1", &sky, true);	 //‹ó
@@ -312,8 +312,9 @@ public:
 					for (int z = -1; z <= 1; z++) {
 						auto id = get_id(m.x + x, m.y + y, m.z + z);
 						if (id >= 0 && id <= objs.size() - 1 && abs(m.x) != size_x / 2 && abs(m.y) != size_y / 2 && abs(m.z) != size_z / 2) {
-							m.near_[cnt++] = &objs[id];
+							m.near_[cnt] = &objs[id];
 						}
+						cnt++;
 					}
 				}
 			}
@@ -325,19 +326,19 @@ public:
 		this->zminus = 12;
 		this->zplus = 14;
 		/*
-		|00 = y 1 x 1 z 1|09 = y 0 x 1 z 1|18 = y 1 x 1 z 1
-		|01 = y 1 x 1 z 0|10 = y 0 x 1 z 0|19 = y 1 x 1 z 0
-		|02 = y 1 x 1 z 1|11 = y 0 x 1 z 1|20 = y 1 x 1 z 1
-		|03 = y 1 x 0 z 1|12 = y 0 x 0 z+1|21 = y 1 x 0 z+1
-		|04 = y 1 x 0 z 0|13 = y 0 x 0 z+0|22 = y 1 x 0 z+0
-		|05 = y 1 x 0 z 1|14 = y 0 x 0 z 1|23 = y 1 x 0 z 1
-		|06 = y 1 x 1 z 1|15 = y 0 x 1 z 1|24 = y 1 x 1 z 1
-		|07 = y 1 x 1 z 0|16 = y 0 x 1 z 0|25 = y 1 x 1 z+0
-		|08 = y 1 x 1 z 1|17 = y 0 x 1 z+1|26 = y 1 x 1 z+1
+		|00 = y-1 x-1 z-1|09 = y 0 x-1 z-1|18 = y 1 x-1 z-1
+		|01 = y-1 x-1 z 0|10 = y 0 x-1 z 0|19 = y 1 x-1 z 0
+		|02 = y-1 x-1 z 1|11 = y 0 x-1 z 1|20 = y 1 x-1 z 1
+		|03 = y-1 x 0 z-1|12 = y 0 x 0 z-1|21 = y 1 x 0 z-1
+		|04 = y-1 x 0 z 0|13 = y 0 x 0 z 0|22 = y 1 x 0 z 0
+		|05 = y-1 x 0 z 1|14 = y 0 x 0 z 1|23 = y 1 x 0 z 1
+		|06 = y-1 x 1 z-1|15 = y 0 x 1 z-1|24 = y 1 x 1 z-1
+		|07 = y-1 x 1 z 0|16 = y 0 x 1 z 0|25 = y 1 x 1 z 0
+		|08 = y-1 x 1 z 1|17 = y 0 x 1 z 1|26 = y 1 x 1 z 1
 		*/
 	}
 	void push_look(block_obj& m) {
-		m.obj.model.Dispose();
+		m.model.Dispose();
 		if (m.near_[this->xminus] != nullptr && m.near_[this->xplus] != nullptr && m.near_[this->zminus] != nullptr && m.near_[this->zplus] != nullptr) {
 			//
 			if (m.near_[this->xminus]->ptr == nullptr && m.near_[this->xplus]->ptr != nullptr && m.near_[this->zminus]->ptr != nullptr && m.near_[this->zplus]->ptr != nullptr) {//x-1
@@ -425,44 +426,44 @@ public:
 					m.id = 0x84;
 				}
 				else {
-					m.obj.model = m.ptr->model.Duplicate();
+					m.model = m.ptr->model.Duplicate();
 					m.id = 0x00;
 				}
 			}
 			//
 			if (m.id & 0x10) {
-				m.obj.model = m.ptr->model_1_2.Duplicate();
+				m.model = m.ptr->model_1_2.Duplicate();
 			}
 			if (m.id & 0x20) {
-				m.obj.model = m.ptr->model_1_2.Duplicate();
+				m.model = m.ptr->model_1_2.Duplicate();
 			}
 			if (m.id & 0x40) {
-				m.obj.model = m.ptr->model_1_6.Duplicate();
+				m.model = m.ptr->model_1_6.Duplicate();
 			}
 			if (m.id & 0x80) {
-				m.obj.model = m.ptr->model_5_6.Duplicate();
+				m.model = m.ptr->model_5_6.Duplicate();
 			}
 			//
 			if (m.id & 0x01) {
-				m.obj.model.SetRotationZYAxis(VGet(0.f, 0, -1.f), VGet(0, 1.f, 0), 0.f);//¨
+				m.model.SetRotationZYAxis(VGet(0.f, 0, -1.f), VGet(0, 1.f, 0), 0.f);//¨
 			}
 			if (m.id & 0x02) {
-				m.obj.model.SetRotationZYAxis(VGet(0.f, 0, 1.f), VGet(0, 1.f, 0), 0.f);//©
+				m.model.SetRotationZYAxis(VGet(0.f, 0, 1.f), VGet(0, 1.f, 0), 0.f);//©
 			}
 			if (m.id & 0x04) {
-				m.obj.model.SetRotationZYAxis(VGet(1.f, 0, 0.f), VGet(0, 1.f, 0), 0.f);//«
+				m.model.SetRotationZYAxis(VGet(1.f, 0, 0.f), VGet(0, 1.f, 0), 0.f);//«
 			}
 			if (m.id & 0x08) {
-				m.obj.model.SetRotationZYAxis(VGet(-1.f, 0, 0.f), VGet(0, 1.f, 0), 0.f);//ª
+				m.model.SetRotationZYAxis(VGet(-1.f, 0, 0.f), VGet(0, 1.f, 0), 0.f);//ª
 			}
 			//
 		}
 		else {
-			m.obj.model = m.ptr->model.Duplicate();
+			m.model = m.ptr->model.Duplicate();
 			m.id = 0x00;
 		}
-		m.obj.model.SetPosition(VGet(float(m.x)*cube_size_x, float(m.y)*cube_size_y, float(m.z)*cube_size_z));
-		m.obj.model.SetupCollInfo(1, 1, 1);
+		m.model.SetPosition(VGet(float(m.x)*cube_size_x, float(m.y)*cube_size_y, float(m.z)*cube_size_z));
+		m.model.SetupCollInfo(1, 1, 1);
 	}
 	void push_canlook(block_obj& m) {
 		if (m.ptr != nullptr) {
@@ -479,7 +480,6 @@ public:
 		}
 
 	}
-
 	void put_block(int x, int y, int z, block_mod* mod) {
 		if (abs(x) > size_x / 2 || abs(y) > size_y / 2 || abs(z) > size_z / 2) {
 			return;
@@ -507,17 +507,16 @@ public:
 		objs[id].y = y;
 		objs[id].z = z;
 		if (objs[id].ptr != nullptr) {
-			objs[id].obj.model = objs[id].ptr->model.Duplicate();
-			objs[id].obj.model.SetPosition(VGet(float(objs[id].x)*cube_size_x, float(objs[id].y)*cube_size_y, float(objs[id].z)*cube_size_z));
+			objs[id].model = objs[id].ptr->model.Duplicate();
+			objs[id].model.SetPosition(VGet(float(objs[id].x)*cube_size_x, float(objs[id].y)*cube_size_y, float(objs[id].z)*cube_size_z));
 			objs_canlook.emplace_back(&objs[id]);
 		}
 	}
-
 	void pop_block(int x, int y, int z) {
 		auto id = get_id(x, y, z);
 		if (objs[id].ptr != nullptr) {
 			objs[id].ptr = nullptr;
-			objs[id].obj.model.Dispose();
+			objs[id].model.Dispose();
 			objs[id].x = x;
 			objs[id].y = y;
 			objs[id].z = z;
@@ -558,8 +557,8 @@ public:
 		for (auto& n : objs[id].near_) {
 			if (n != nullptr) {
 				if (n->ptr != nullptr) {
-					n->obj.model.SetOpacityRate(0.5f);
-					auto p = n->obj.model.GetPosition().y() - cube_size_y * 0.51f;
+					n->model.SetOpacityRate(0.5f);
+					auto p = n->model.GetPosition().y() - cube_size_y * 0.51f;
 					if (y <= p) {
 						y = p;
 						buf.y(p);
@@ -570,17 +569,16 @@ public:
 		buf.y(y);
 		return buf;
 	}
-
 	auto getcol_line_floor(const VECTOR_ref& startpos) {
 		auto id = get_id(int(startpos.x() / cube_size_x), int((startpos.y()) / cube_size_y), int(startpos.z() / cube_size_z));
 		if (objs[id].ptr != nullptr) {
-			objs[id].obj.model.SetOpacityRate(0.5f);
-			auto p = objs[id].obj.model.CollCheck_Line(VECTOR_ref(startpos) + VGet(0, 0.125f, 0), startpos);
+			objs[id].model.SetOpacityRate(0.5f);
+			auto p = objs[id].model.CollCheck_Line(VECTOR_ref(startpos) + VGet(0, 0.125f, 0), startpos);
 			if (p.HitFlag != 1) {
 				for (auto& n : objs[id].near_) {
 					if (n->ptr != nullptr) {
-						n->obj.model.SetOpacityRate(0.5f);
-						p = n->obj.model.CollCheck_Line(VECTOR_ref(startpos) + VGet(0, 0.125f, 0), startpos);
+						n->model.SetOpacityRate(0.5f);
+						p = n->model.CollCheck_Line(VECTOR_ref(startpos) + VGet(0, 0.125f, 0), startpos);
 						if (p.HitFlag == 1) {
 							return p;
 						}
@@ -590,6 +588,7 @@ public:
 			return p;
 		}
 	}
+
 	void Ready(std::string dir) {
 		SetUseASyncLoadFlag(TRUE);
 		//MV1::Load("data/sky/model.mv1", &sky, true);	 //‹ó
@@ -604,7 +603,6 @@ public:
 	void Delete() {
 		//sky.Dispose();	 //‹ó
 	}
-
 	//‹ó•`‰æ
 	void sky_draw(void) {
 		{
@@ -616,31 +614,32 @@ public:
 		}
 		return;
 	}
-	//
+	//‘S•`‰æ
 	void map_draw_all() {
 		for (auto& m : objs_canlook) {
-			m->obj.model.DrawModel();
+			m->model.DrawModel();
 		}
 		return;
 	}
-	//
+	//ŽÀÛ‚É•`‰æ‚·‚é‚à‚Ì
 	void map_draw() {
 		VECTOR_ref siz;
 		for (auto& m : objs_canlook) {
+			siz = m->model.GetPosition();
 			if (
 				CheckCameraViewClip_Box(
-					(m->obj.model.GetPosition() + VGet(-cube_size_x / 2, -cube_size_y / 2, -cube_size_z / 2)).get(),
-					(m->obj.model.GetPosition() + VGet(cube_size_x / 2, cube_size_y / 2, cube_size_z / 2)).get()
+					(siz + VGet(-cube_size_x / 2, -cube_size_y / 2, -cube_size_z / 2)).get(),
+					(siz + VGet(cube_size_x / 2, cube_size_y / 2, cube_size_z / 2)).get()
 				)
 				) {
 				continue;
 			}
-			siz = (m->obj.model.GetPosition() - GetCameraPosition());
+			siz -= GetCameraPosition();
 			siz.y(0.f);
 			if (siz.size() >= 50.f) {
 				continue;
 			}
-			m->obj.model.DrawModel();
+			m->model.DrawModel();
 		}
 		return;
 	}
