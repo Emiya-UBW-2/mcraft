@@ -162,7 +162,7 @@ public:
 										//落下
 										{
 											//ブロック自身の座標で床判定ver
-											//*
+											/*
 											{
 												auto pp = mapparts->getcol_line_floor_nodx_2(pos_t);
 												if (c.add_ypos <= 0.f && pp.y() != -100.f) {
@@ -181,7 +181,7 @@ public:
 											}
 											//*/
 											//問題が起こるver
-											/*
+											//*
 											{
 												auto pp = mapparts->getcol_line_floor(pos_t);
 												if (c.add_ypos <= 0.f && pp.HitFlag == 1) {
