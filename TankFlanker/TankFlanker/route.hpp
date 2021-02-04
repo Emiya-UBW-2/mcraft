@@ -140,10 +140,10 @@ public:
 							{
 								//•Ç‚»‚Ì‘¼‚Ì”»’è
 								{
-									VECTOR_ref pos_t3 = VECTOR_ref(VGet(c.pos_HMD.x(), 0.f, c.pos_HMD.z()));
+									VECTOR_ref pos_t3 = VGet(c.pos_HMD.x(), 0.f, c.pos_HMD.z());
 									//VR—p
 									{
-										VECTOR_ref pos_t2 = c.pos + VECTOR_ref(VGet(c.pos_HMD_old.x(), 0.f, c.pos_HMD_old.z()));
+										VECTOR_ref pos_t2 = c.pos + VGet(c.pos_HMD_old.x(), 0.f, c.pos_HMD_old.z());
 										VECTOR_ref pos_t = c.pos + pos_t3;
 										//•Ç
 										/*

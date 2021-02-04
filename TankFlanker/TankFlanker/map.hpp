@@ -111,10 +111,10 @@ private:
 		MV1 model_5_6;
 
 		void set() {
-			MV1::Load("data/block/b_1/model.mv1", &model, false);
-			MV1::Load("data/block/b_1_2/model.mv1", &model_1_2, false);
-			MV1::Load("data/block/b_1_3/model.mv1", &model_1_6, false);
-			MV1::Load("data/block/b_1_4/model.mv1", &model_5_6, false);
+			MV1::Load("data/block_bad/b_1/model.mv1", &model, false);
+			MV1::Load("data/block_bad/b_1_2/model.mv1", &model_1_2, false);
+			MV1::Load("data/block_bad/b_1_3/model.mv1", &model_1_6, false);
+			MV1::Load("data/block_bad/b_1_4/model.mv1", &model_5_6, false);
 		}
 	};
 
@@ -573,15 +573,14 @@ public:
 		auto id = get_id(int(startpos.x() / cube_size_x), int((startpos.y()) / cube_size_y), int(startpos.z() / cube_size_z));
 		if (objs[id].ptr != nullptr) {
 			objs[id].model.SetOpacityRate(0.5f);
-			auto p = objs[id].model.CollCheck_Line(VECTOR_ref(startpos) + VGet(0, 0.125f, 0), startpos);
-			if (p.HitFlag != 1) {
-				for (auto& n : objs[id].near_) {
-					if (n->ptr != nullptr) {
-						n->model.SetOpacityRate(0.5f);
-						p = n->model.CollCheck_Line(VECTOR_ref(startpos) + VGet(0, 0.125f, 0), startpos);
-						if (p.HitFlag == 1) {
-							return p;
-						}
+			MV1_COLL_RESULT_POLY p;
+			p.HitFlag = 0;
+			for (auto& n : objs[id].near_) {
+				if (n->ptr != nullptr) {
+					n->model.SetOpacityRate(0.5f);
+					p = n->model.CollCheck_Line(VECTOR_ref(startpos) + VGet(0, 1.125f, 0), startpos);
+					if (p.HitFlag == 1) {
+						return p;
 					}
 				}
 			}
