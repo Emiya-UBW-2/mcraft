@@ -196,7 +196,6 @@ public:
 														pos_t.y(0.f);
 														c.add_ypos = 0.f;
 													}
-
 												}
 											}
 											//*/
