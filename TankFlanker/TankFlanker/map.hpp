@@ -111,10 +111,10 @@ private:
 		MV1 model_5_6;
 
 		void set() {
-			MV1::Load("data/block_bad/b_1/model.mv1", &model, false);
-			MV1::Load("data/block_bad/b_1_2/model.mv1", &model_1_2, false);
-			MV1::Load("data/block_bad/b_1_3/model.mv1", &model_1_6, false);
-			MV1::Load("data/block_bad/b_1_4/model.mv1", &model_5_6, false);
+			MV1::Load("data/block/b_1/model.mv1", &model, false);
+			MV1::Load("data/block/b_1_2/model.mv1", &model_1_2, false);
+			MV1::Load("data/block/b_1_3/model.mv1", &model_1_6, false);
+			MV1::Load("data/block/b_1_4/model.mv1", &model_5_6, false);
 		}
 	};
 
@@ -509,6 +509,7 @@ public:
 		if (objs[id].ptr != nullptr) {
 			objs[id].model = objs[id].ptr->model.Duplicate();
 			objs[id].model.SetPosition(VGet(float(objs[id].x)*cube_size_x, float(objs[id].y)*cube_size_y, float(objs[id].z)*cube_size_z));
+			objs[id].model.SetupCollInfo(1, 1, 1);
 			objs_canlook.emplace_back(&objs[id]);
 		}
 	}
@@ -550,42 +551,36 @@ public:
 		}
 	}
 
-	VECTOR_ref getcol_line_floor_nodx_2(const VECTOR_ref& startpos) {
-		auto id = get_id(int(startpos.x() / cube_size_x), int((startpos.y()) / cube_size_y), int(startpos.z() / cube_size_z));
-		VECTOR_ref buf = startpos;
-		float y = -100.f;
-		for (auto& n : objs[id].near_) {
-			if (n != nullptr) {
-				if (n->ptr != nullptr) {
-					n->model.SetOpacityRate(0.5f);
-					auto p = n->model.GetPosition().y() - cube_size_y * 0.51f;
-					if (y <= p) {
-						y = p;
-						buf.y(p);
-					}
-				}
-			}
-		}
-		buf.y(y);
-		return buf;
-	}
 	auto getcol_line_floor(const VECTOR_ref& startpos) {
 		auto id = get_id(int(startpos.x() / cube_size_x), int((startpos.y()) / cube_size_y), int(startpos.z() / cube_size_z));
-		if (objs[id].ptr != nullptr) {
-			objs[id].model.SetOpacityRate(0.5f);
-			MV1_COLL_RESULT_POLY p;
-			p.HitFlag = 0;
-			for (auto& n : objs[id].near_) {
-				if (n->ptr != nullptr) {
-					n->model.SetOpacityRate(0.5f);
-					p = n->model.CollCheck_Line(VECTOR_ref(startpos) + VGet(0, 1.125f, 0), startpos);
-					if (p.HitFlag == 1) {
-						return p;
+		bool tt = false;
+		VECTOR_ref ans = startpos;
+		MV1_COLL_RESULT_POLY p,ansc;
+		for (auto& n : objs[id].near_) {
+			if (n == nullptr) {
+				continue;
+			}
+			if (n->ptr != nullptr) {
+				while (true){
+					p = n->model.CollCheck_Line(ans + VGet(0, 0.25f*2.f, 0), ans);
+					if (p.HitFlag == TRUE) {
+						if (ans == p.HitPosition) {
+							break;
+						}
+						ans = p.HitPosition;
+						ansc = p;
+						tt = true;
+					}
+					else {
+						break;
 					}
 				}
 			}
-			return p;
 		}
+		if (!tt) {
+			ansc.HitFlag = FALSE;
+		}
+		return ansc;
 	}
 
 	void Ready(std::string dir) {
