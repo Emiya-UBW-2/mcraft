@@ -109,12 +109,14 @@ private:
 		MV1 model_1_2;
 		MV1 model_1_6;
 		MV1 model_5_6;
+		MV1 model_2_3;
 
 		void set() {
 			MV1::Load("data/block/b_1/model.mv1", &model, false);
 			MV1::Load("data/block/b_1_2/model.mv1", &model_1_2, false);
 			MV1::Load("data/block/b_1_3/model.mv1", &model_1_6, false);
 			MV1::Load("data/block/b_1_4/model.mv1", &model_5_6, false);
+			MV1::Load("data/block/b_1_5/model.mv1", &model_2_3, false);
 		}
 	};
 
@@ -341,88 +343,79 @@ public:
 		m.model.Dispose();
 		if (m.near_[this->xminus] != nullptr && m.near_[this->xplus] != nullptr && m.near_[this->zminus] != nullptr && m.near_[this->zplus] != nullptr) {
 			//
-			if (m.near_[this->xminus]->ptr == nullptr && m.near_[this->xplus]->ptr != nullptr && m.near_[this->zminus]->ptr != nullptr && m.near_[this->zplus]->ptr != nullptr) {//x-1
+			if ((m.near_[this->xminus]->ptr == nullptr && m.near_[this->xplus]->ptr != nullptr && m.near_[this->zminus]->ptr != nullptr && m.near_[this->zplus]->ptr != nullptr) || (m.near_[this->xminus]->ptr == nullptr && m.near_[this->xplus]->ptr != nullptr && m.near_[this->zminus]->ptr == nullptr && m.near_[this->zplus]->ptr == nullptr)) {
 				m.id = 0x11;
 			}
-			else if (m.near_[this->xminus]->ptr != nullptr&&m.near_[this->xplus]->ptr == nullptr &&  m.near_[this->zminus]->ptr != nullptr && m.near_[this->zplus]->ptr != nullptr) {//x+1
+			else if ((m.near_[this->xminus]->ptr != nullptr&&m.near_[this->xplus]->ptr == nullptr &&  m.near_[this->zminus]->ptr != nullptr && m.near_[this->zplus]->ptr != nullptr) || (m.near_[this->xminus]->ptr != nullptr&&m.near_[this->xplus]->ptr == nullptr &&  m.near_[this->zminus]->ptr == nullptr && m.near_[this->zplus]->ptr == nullptr)) {
 				m.id = 0x12;
 			}
-			else if (m.near_[this->xminus]->ptr != nullptr && m.near_[this->xplus]->ptr != nullptr &&m.near_[this->zminus]->ptr == nullptr &&  m.near_[this->zplus]->ptr != nullptr) {//z-1
+			else if ((m.near_[this->xminus]->ptr != nullptr && m.near_[this->xplus]->ptr != nullptr &&m.near_[this->zminus]->ptr == nullptr &&  m.near_[this->zplus]->ptr != nullptr) || (m.near_[this->xminus]->ptr == nullptr && m.near_[this->xplus]->ptr == nullptr &&m.near_[this->zminus]->ptr == nullptr &&  m.near_[this->zplus]->ptr != nullptr)) {
 				m.id = 0x14;
 			}
-			else if (m.near_[this->xminus]->ptr != nullptr && m.near_[this->xplus]->ptr != nullptr && m.near_[this->zminus]->ptr != nullptr&&m.near_[this->zplus]->ptr == nullptr) {//z+1
+			else if ((m.near_[this->xminus]->ptr != nullptr && m.near_[this->xplus]->ptr != nullptr && m.near_[this->zminus]->ptr != nullptr&&m.near_[this->zplus]->ptr == nullptr) || (m.near_[this->xminus]->ptr == nullptr && m.near_[this->xplus]->ptr == nullptr && m.near_[this->zminus]->ptr != nullptr&&m.near_[this->zplus]->ptr == nullptr)) {
 				m.id = 0x18;
 			}
 			//
-			else if (m.near_[this->xminus]->ptr == nullptr && m.near_[this->xplus]->ptr != nullptr && m.near_[this->zminus]->ptr == nullptr && m.near_[this->zplus]->ptr == nullptr) {//x-1
+			else if (m.near_[this->xminus]->ptr == nullptr && m.near_[this->xplus]->ptr != nullptr && m.near_[this->zminus]->ptr != nullptr&&m.near_[this->zplus]->ptr == nullptr) {
 				m.id = 0x21;
 			}
-			else if (m.near_[this->xminus]->ptr != nullptr&&m.near_[this->xplus]->ptr == nullptr &&  m.near_[this->zminus]->ptr == nullptr && m.near_[this->zplus]->ptr == nullptr) {//x+1
+			else if (m.near_[this->xminus]->ptr != nullptr && m.near_[this->xplus]->ptr == nullptr &&m.near_[this->zminus]->ptr == nullptr &&  m.near_[this->zplus]->ptr != nullptr) {
 				m.id = 0x22;
 			}
-			else if (m.near_[this->xminus]->ptr == nullptr && m.near_[this->xplus]->ptr == nullptr &&m.near_[this->zminus]->ptr == nullptr &&  m.near_[this->zplus]->ptr != nullptr) {//z-1
+			else if (m.near_[this->xminus]->ptr == nullptr && m.near_[this->xplus]->ptr != nullptr && m.near_[this->zminus]->ptr == nullptr && m.near_[this->zplus]->ptr != nullptr) {
 				m.id = 0x24;
 			}
-			else if (m.near_[this->xminus]->ptr == nullptr && m.near_[this->xplus]->ptr == nullptr && m.near_[this->zminus]->ptr != nullptr&&m.near_[this->zplus]->ptr == nullptr) {//z+1
+			else if (m.near_[this->xminus]->ptr != nullptr&&m.near_[this->xplus]->ptr == nullptr &&  m.near_[this->zminus]->ptr != nullptr && m.near_[this->zplus]->ptr == nullptr) {
 				m.id = 0x28;
-			}
-			//
-			else if (m.near_[this->xminus]->ptr == nullptr && m.near_[this->xplus]->ptr != nullptr && m.near_[this->zminus]->ptr != nullptr&&m.near_[this->zplus]->ptr == nullptr) {//z+1
-				m.id = 0x41;
-			}
-			else if (m.near_[this->xminus]->ptr != nullptr && m.near_[this->xplus]->ptr == nullptr &&m.near_[this->zminus]->ptr == nullptr &&  m.near_[this->zplus]->ptr != nullptr) {//z-1
-				m.id = 0x42;
-			}
-			else if (m.near_[this->xminus]->ptr == nullptr && m.near_[this->xplus]->ptr != nullptr && m.near_[this->zminus]->ptr == nullptr && m.near_[this->zplus]->ptr != nullptr) {//x-1
-				m.id = 0x44;
-			}
-			else if (m.near_[this->xminus]->ptr != nullptr&&m.near_[this->xplus]->ptr == nullptr &&  m.near_[this->zminus]->ptr != nullptr && m.near_[this->zplus]->ptr == nullptr) {//x+1
-				m.id = 0x48;
 			}
 			else {
 				//
 				if (
-					(m.near_[this->xminus]->id == 0x14 || m.near_[this->xminus]->id == 0x24 || m.near_[this->xminus]->id == 0x41)
-					&&
-					(m.near_[this->xplus]->id == 0x00 || m.near_[this->xplus]->id == 0x12 || m.near_[this->xplus]->id == 0x22 || m.near_[this->xplus]->id == 0x82 || m.near_[this->xplus]->id == 0x84)
-					&&
-					(m.near_[this->zminus]->id == 0x00 || m.near_[this->zminus]->id == 0x18 || m.near_[this->zminus]->id == 0x28 || m.near_[this->zminus]->id == 0x82 || m.near_[this->zminus]->id == 0x88)
-					&&
-					(m.near_[this->zplus]->id == 0x11 || m.near_[this->zplus]->id == 0x21 || m.near_[this->zplus]->id == 0x41)
+					(m.near_[this->xminus]->id == 0x18 || m.near_[this->xminus]->id == 0x21)&&
+					(m.near_[this->xplus]->id == 0x00 || m.near_[this->xplus]->id == 0x12 || m.near_[this->xplus]->id == 0x42 || m.near_[this->xplus]->id == 0x48)&&
+					(m.near_[this->zminus]->id == 0x00 || m.near_[this->zminus]->id == 0x14 || m.near_[this->zminus]->id == 0x42 || m.near_[this->zminus]->id == 0x44)&&
+					(m.near_[this->zplus]->id == 0x11 || m.near_[this->zplus]->id == 0x21)
+					) {//z+1
+					m.id = 0x41;
+				}
+				else if (
+					(m.near_[this->xminus]->id == 0x00 || m.near_[this->xminus]->id == 0x11 || m.near_[this->xminus]->id == 0x41 || m.near_[this->xminus]->id == 0x44)&&
+					(m.near_[this->xplus]->id == 0x14 || m.near_[this->xplus]->id == 0x22)&&
+					(m.near_[this->zminus]->id == 0x12 || m.near_[this->zminus]->id == 0x22)&&
+					(m.near_[this->zplus]->id == 0x00 || m.near_[this->zplus]->id == 0x18 || m.near_[this->zplus]->id == 0x41 || m.near_[this->zplus]->id == 0x44)
+					) {//x+1
+					m.id = 0x42;
+				}
+				else if (
+					(m.near_[this->xminus]->id == 0x14 || m.near_[this->xminus]->id == 0x24)&&
+					(m.near_[this->xplus]->id == 0x00 || m.near_[this->xplus]->id == 0x12 || m.near_[this->xplus]->id == 0x42 || m.near_[this->xplus]->id == 0x48)&&
+					(m.near_[this->zminus]->id == 0x11 || m.near_[this->zminus]->id == 0x24)&&
+					(m.near_[this->zplus]->id == 0x00 || m.near_[this->zplus]->id == 0x18 || m.near_[this->zplus]->id == 0x41 || m.near_[this->zplus]->id == 0x44)
+					) {//x-1
+					m.id = 0x44;
+				}
+				else if (
+					(m.near_[this->xminus]->id == 0x00 || m.near_[this->xminus]->id == 0x11 || m.near_[this->xminus]->id == 0x41 || m.near_[this->xminus]->id == 0x44)&&
+					(m.near_[this->xplus]->id == 0x18 || m.near_[this->xplus]->id == 0x28)&&
+					(m.near_[this->zminus]->id == 0x00 || m.near_[this->zminus]->id == 0x18 || m.near_[this->zminus]->id == 0x42 || m.near_[this->zminus]->id == 0x44)&&
+					(m.near_[this->zplus]->id == 0x12 || m.near_[this->zplus]->id == 0x28)
+					) {//z-1
+					m.id = 0x48;
+				}
+				else if (
+					(m.near_[this->xminus]->id == 0x14 || m.near_[this->xminus]->id == 0x24) &&
+					(m.near_[this->xplus]->id == 0x18 || m.near_[this->xplus]->id == 0x28) &&
+					(m.near_[this->zminus]->id == 0x11 || m.near_[this->zminus]->id == 0x21) &&
+					(m.near_[this->zplus]->id == 0x12 || m.near_[this->zplus]->id == 0x22)
 					) {//z+1
 					m.id = 0x81;
 				}
 				else if (
-					(m.near_[this->xminus]->id == 0x00 || m.near_[this->xminus]->id == 0x11 || m.near_[this->xminus]->id == 0x21 || m.near_[this->xminus]->id == 0x81 || m.near_[this->xminus]->id == 0x88)
-					&&
-					(m.near_[this->xplus]->id == 0x18 || m.near_[this->xplus]->id == 0x28 || m.near_[this->xplus]->id == 0x42)
-					&&
-					(m.near_[this->zminus]->id == 0x12 || m.near_[this->zminus]->id == 0x22 || m.near_[this->zminus]->id == 0x42)
-					&&
-					(m.near_[this->zplus]->id == 0x00 || m.near_[this->zplus]->id == 0x18 || m.near_[this->zplus]->id == 0x24 || m.near_[this->zplus]->id == 0x81 || m.near_[this->zplus]->id == 0x84)
-					) {//x+1
-					m.id = 0x82;
-				}
-				else if (
-					(m.near_[this->xminus]->id == 0x00 || m.near_[this->xminus]->id == 0x11 || m.near_[this->xminus]->id == 0x21 || m.near_[this->xminus]->id == 0x81 || m.near_[this->xminus]->id == 0x88)
-					&&
-					(m.near_[this->xplus]->id == 0x14 || m.near_[this->xplus]->id == 0x24 || m.near_[this->xplus]->id == 0x48)
-					&&
-					(m.near_[this->zminus]->id == 0x00 || m.near_[this->zminus]->id == 0x18 || m.near_[this->zminus]->id == 0x28 || m.near_[this->zminus]->id == 0x82 || m.near_[this->zminus]->id == 0x88)
-					&&
-					(m.near_[this->zplus]->id == 0x12 || m.near_[this->zplus]->id == 0x22 || m.near_[this->zplus]->id == 0x48)
-					) {//z-1
-					m.id = 0x88;
-				}
-				else if (
-					(m.near_[this->xminus]->id == 0x18 || m.near_[this->xminus]->id == 0x28 || m.near_[this->xminus]->id == 0x44)
-					&&
-					(m.near_[this->xplus]->id == 0x00 || m.near_[this->xplus]->id == 0x12 || m.near_[this->xplus]->id == 0x22 || m.near_[this->xplus]->id == 0x82 || m.near_[this->xplus]->id == 0x84)
-					&&
-					(m.near_[this->zminus]->id == 0x11 || m.near_[this->zminus]->id == 0x21 || m.near_[this->zminus]->id == 0x44)
-					&&
-					(m.near_[this->zplus]->id == 0x00 || m.near_[this->zplus]->id == 0x18 || m.near_[this->zplus]->id == 0x24 || m.near_[this->zplus]->id == 0x81 || m.near_[this->zplus]->id == 0x84)
-					) {//x-1
+					(m.near_[this->xminus]->id == 0x11 || m.near_[this->xminus]->id == 0x28) &&
+					(m.near_[this->xplus]->id == 0x12 || m.near_[this->xplus]->id == 0x24) &&
+					(m.near_[this->zminus]->id == 0x12 || m.near_[this->zminus]->id == 0x22) &&
+					(m.near_[this->zplus]->id == 0x11 || m.near_[this->zplus]->id == 0x21)
+					) {//z+1
 					m.id = 0x84;
 				}
 				else {
@@ -435,13 +428,13 @@ public:
 				m.model = m.ptr->model_1_2.Duplicate();
 			}
 			if (m.id & 0x20) {
-				m.model = m.ptr->model_1_2.Duplicate();
-			}
-			if (m.id & 0x40) {
 				m.model = m.ptr->model_1_6.Duplicate();
 			}
-			if (m.id & 0x80) {
+			if (m.id & 0x40) {
 				m.model = m.ptr->model_5_6.Duplicate();
+			}
+			if (m.id & 0x80) {
+				m.model = m.ptr->model_2_3.Duplicate();
 			}
 			//
 			if (m.id & 0x01) {
