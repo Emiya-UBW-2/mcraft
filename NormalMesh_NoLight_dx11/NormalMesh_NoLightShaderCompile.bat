@@ -1,0 +1,3 @@
+ShaderCompiler.exe /Tvs_4_0_level_9_1 NormalMesh_NoLightVS.fx
+ShaderCompiler.exe /Tps_4_0_level_9_1 NormalMesh_NoLightPS.fx
+pause
