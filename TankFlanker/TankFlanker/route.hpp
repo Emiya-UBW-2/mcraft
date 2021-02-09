@@ -161,44 +161,20 @@ public:
 										//*/
 										//落下
 										{
-											//ブロック自身の座標で床判定ver
-											/*
-											{
-												auto pp = mapparts->getcol_line_floor_nodx_2(pos_t);
-												if (c.add_ypos <= 0.f && pp.y() != -100.f) {
-													pos_t = pp;
+											auto pp = mapparts->getcol_line_floor(pos_t);
+											if (c.add_ypos <= 0.f && pp.HitFlag == TRUE) {
+												pos_t = pp.HitPosition;
+												c.add_ypos = 0.f;
+											}
+											else {
+												pos_t.yadd(c.add_ypos);
+												c.add_ypos += M_GR / std::powf(fps_, 2.f);
+												//復帰
+												if (pos_t.y() <= -15.f) {
+													pos_t.y(0.f);
 													c.add_ypos = 0.f;
 												}
-												else {
-													pos_t.yadd(c.add_ypos);
-													c.add_ypos += M_GR / std::powf(fps_, 2.f);
-													//復帰
-													if (pos_t.y() <= -15.f) {
-														pos_t.y(0.f);
-														c.add_ypos = 0.f;
-													}
-												}
 											}
-											//*/
-											//問題が起こるver
-											//*
-											{
-												auto pp = mapparts->getcol_line_floor(pos_t);
-												if (c.add_ypos <= 0.f && pp.HitFlag == 1) {
-													pos_t = pp.HitPosition;
-													c.add_ypos = 0.f;
-												}
-												else {
-													pos_t.yadd(c.add_ypos);
-													c.add_ypos += M_GR / std::powf(fps_, 2.f);
-													//復帰
-													if (pos_t.y() <= -20.f) {
-														pos_t.y(0.f);
-														c.add_ypos = 0.f;
-													}
-												}
-											}
-											//*/
 										}
 										//反映
 										c.pos = pos_t - pos_t3;
