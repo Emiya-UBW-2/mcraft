@@ -8,29 +8,21 @@ struct VS_INPUT
 	float3 Tan         : TANGENT0;  // ローカル
 	float3 Bin         : BINORMAL0; // ローカル
 };
-
 // 頂点シェーダーの出力
 struct VS_OUTPUT
 {
-	//*
 	float4 Position    : POSITION;	// 座標( 射影空間 )
 	float4 VPosition   : TEXCOORD0;	// 座標( ビュー空間 )
 	float4 PositionSub : TEXCOORD1;	// 座標( 射影空間 )ピクセルシェーダーで参照する為の物
 	float3 VNormal     : TEXCOORD2; // 視線ベクトル（接空間）
 	float2 TexCoords0  : TEXCOORD3; // テクスチャ座標
-	//*/
 };
-
-
 
 // C++ 側で設定する定数の定義
 float4x4 g_World : register(c94); 		// ローカル→ワールド
 float4x4 g_View  : register(c6);			// ワールド→ビュー
 float4x4 g_Proj  : register(c2);			// ビュー→射影
 float4 LightDirection : register(c15);	//ライトの方向（ローカル）
-//float4              cfProjectionMatrix[4] : register(c2);		// ビュー　　→　射影行列
-//float4              cfViewMatrix[3]       : register(c6);		// ワールド　→　ビュー行列
-//float4              cfLocalWorldMatrix[3] : register(c94);		// ローカル　→　ワールド行列
 float4 EyePos : register(c43);			//視線ベクトル（ローカル）
 float4	g_fTime	 : register(c0);	//時間
 

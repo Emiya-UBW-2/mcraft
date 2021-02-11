@@ -5,9 +5,7 @@ struct PS_INPUT
 	float4 PositionSub : TEXCOORD1;	// 座標( 射影空間 )ピクセルシェーダーで参照する為の物
 	float3 VNormal     : TEXCOORD2; // 視線ベクトル（接空間）
 	float2 TexCoords0  : TEXCOORD3; // テクスチャ座標
-
 };
-
 // ピクセルシェーダーの出力
 struct PS_OUTPUT
 {
@@ -41,10 +39,6 @@ float4   cfAmbient_Emissive : register(c1);	// エミッシブカラー + マテリアルアン
 MATERIAL cfMaterial         : register(c2);	// マテリアルパラメータ
 float4   cfFactorColor      : register(c5);	// 不透明度等
 LIGHT    cfLight            : register(c32);// ライトパラメータ
-
-//float MaxOpacityDistance : register(c0);   // 不透明度が最大になる水中の距離
-//float MinOpacity : register(c1);   // 最低不透明度
-
 
 // main関数
 PS_OUTPUT main(PS_INPUT PSInput)
