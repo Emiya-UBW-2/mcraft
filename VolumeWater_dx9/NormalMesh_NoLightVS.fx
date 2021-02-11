@@ -1,20 +1,21 @@
 // 頂点シェーダーの入力
 struct VS_INPUT
 {
-	float4 Position        : POSITION;	// ローカル
-	float3 Normal     : NORMAL0;	// ローカル
-	float2 TexCoords0        : TEXCOORD0;	// テクスチャ座標
-	float2 TexCoords1        : TEXCOORD1;	// テクスチャ座標
-	float3 Tan        : TANGENT0;	// ローカル
-	float3 Bin        : BINORMAL0;	// ローカル
+	float4 Position   : POSITION;  // ローカル
+	float3 Normal     : NORMAL0;   // ローカル
+	float2 TexCoords0 : TEXCOORD0; // テクスチャ座標
+	float2 TexCoords1 : TEXCOORD1; // テクスチャ座標
+	float3 Tan        : TANGENT0;  // ローカル
+	float3 Bin        : BINORMAL0; // ローカル
 };
 // 頂点シェーダーの出力
 struct VS_OUTPUT
 {
-	float4 Position      : POSITION;	// 射影
-	float2 TexCoords0      : TEXCOORD0;	// テクスチャ座標
-	float3 VPosition     	: TEXCOORD1;	// ライト方向ベクトル（接空間）
-	float3 VNormal     	: TEXCOORD2;	// 視線ベクトル（接空間）
+	float4 Position   : POSITION;  // 射影
+	float2 TexCoords0 : TEXCOORD0; // テクスチャ座標
+	float3 VPosition  : TEXCOORD1; // ライト方向ベクトル（接空間）
+	float3 VNormal    : TEXCOORD2; // 視線ベクトル（接空間）
+	float4 PositionSub : TEXCOORD3;	// 座標( 射影空間 )ピクセルシェーダーで参照する為の物
 };
 // C++ 側で設定する定数の定義
 float4x4 g_World : register(c94); 		// ローカル→ワールド
@@ -48,6 +49,9 @@ VS_OUTPUT main(VS_INPUT VSInput)
 	VSOutput.VPosition.x = dot(VPosition, VSInput.Tan);
 	VSOutput.VPosition.y = dot(VPosition, VSInput.Bin);
 	VSOutput.VPosition.z = dot(VPosition, VSInput.Normal);
+
+	// ピクセルシェーダーで使用するための射影座標をセット
+	VSOutput.PositionSub = VSOutput.Position;
 
 	// テクスチャ
 	VSOutput.TexCoords0 = VSInput.TexCoords0;

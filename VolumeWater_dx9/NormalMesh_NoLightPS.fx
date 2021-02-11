@@ -3,9 +3,7 @@ struct PS_INPUT
 {
 	float2 TexCoords0      	: TEXCOORD0;	// テクスチャ
 	float3 VPosition     	: TEXCOORD1;	//ライト方向（接空間）
-	float3 VTan             : TEXCOORD2;    // 接線( ビュー空間 )
-	float3 VBin             : TEXCOORD3;    // 従法線( ビュー空間 )
-	float3 VNormal     		: TEXCOORD4;	//視線（接空間）
+	float3 VNormal     		: TEXCOORD2;	//視線（接空間）
 };
 
 // ピクセルシェーダーの出力
@@ -21,7 +19,6 @@ struct MATERIAL
 	float4 Specular;     // スペキュラカラー
 	float4 Power;        // スペキュラの強さ
 };
-
 // ライトパラメータ
 struct LIGHT
 {
@@ -33,7 +30,6 @@ struct LIGHT
 	float4 Range_FallOff_AT0_AT1;
 	float4 AT2_SpotP0_SpotP1;
 };
-
 // C++ 側で設定するテクスチャや定数の定義
 sampler  DiffuseMapTexture             : register(s0);		// ディフューズマップテクスチャ
 sampler  NormalMapTexture              : register(s1);		// 法線マップテクスチャ
@@ -58,23 +54,8 @@ PS_OUTPUT main(PS_INPUT PSInput)
 	float3 V_to_Eye;
 	float3 lLightDir;
 
-	//float3 VNrm;
-	//float3 VTan;
-	//float3 VBin;
-
 	float	g_time = g_fTime.x;
 
-	// 接線・従法線・法線を正規化
-	//VNrm = normalize(PSInput.VNormal);
-	//VTan = normalize(PSInput.VTan);
-	//VBin = normalize(PSInput.VBin);
-	/*
-	// 頂点座標から視点へのベクトルを接底空間に投影した後正規化して保存
-	TempF3.x = dot(VTan, -PSInput.VPosition.xyz);
-	TempF3.y = dot(VBin, -PSInput.VPosition.xyz);
-	TempF3.z = dot(VNrm, -PSInput.VPosition.xyz);
-	V_to_Eye = normalize(TempF3);
-	*/
 	//視線ベクトルを正規化
 	V_to_Eye = normalize(PSInput.VNormal);
 
@@ -116,14 +97,6 @@ PS_OUTPUT main(PS_INPUT PSInput)
 	// ディレクショナルライトの処理 +++++++++++++++++++++++++++++++++++++++++++++++++++++( 開始 )
 
 	// ライト方向ベクトルのセット
-	/*
-	// ライト方向ベクトルの計算
-	TempF3 = cfLight.Direction;
-	// ライトのベクトルを接地空間に変換
-	lLightDir.x = dot(VTan, TempF3);
-	lLightDir.y = dot(VBin, TempF3);
-	lLightDir.z = dot(VNrm, TempF3);
-	//*/
 	lLightDir = PSInput.VPosition;
 
 	// ディフューズ色計算

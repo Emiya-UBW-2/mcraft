@@ -7,8 +7,8 @@
 #define CAMERA_SPEED		(32.0f)
 
 int ModelHandle;
-int PixelShaderHandle;
-int VertexShaderHandle;
+//int PixelShaderHandle;
+//int VertexShaderHandle;
 // キャラクターモデルとステージモデル
 int CharaModel;
 int StageModel;
@@ -77,8 +77,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	VolumeWaterVS = LoadVertexShader("VolumeWaterVS.vso");
 	VolumeWaterPS = LoadPixelShader("VolumeWaterPS.pso");
 	//
-	VertexShaderHandle = LoadVertexShader("NormalMesh_NoLightVS.vso");	// 頂点シェーダーを読み込む
-	PixelShaderHandle = LoadPixelShader("NormalMesh_NoLightPS.pso");	// ピクセルシェーダーを読み込む
+	//VertexShaderHandle = LoadVertexShader("NormalMesh_NoLightVS.vso");	// 頂点シェーダーを読み込む
+	//PixelShaderHandle = LoadPixelShader("NormalMesh_NoLightPS.pso");	// ピクセルシェーダーを読み込む
 	ModelHandle = MV1LoadModel("NormalBox.mqo");	// 剛体メッシュモデルを読み込む
 	//model
 	CharaModel = MV1LoadModel("DxChara.x");	// キャラクターモデルの読み込み
@@ -105,15 +105,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	int GameTime, OldTime = GetNowCount();
 	//
 	while (ProcessMessage() == 0){
-		{
-			auto Time = GetNowCount();	// 現在の時間を得る
-			GameTime = Time - OldTime;	// 今フレームで経過した時間を得る
-			OldTime = Time;				// 現在の時間を保存
-			//
-			g_fTime.x += float(GameTime) / 1000.0f;
-			SetVSConstF(0, g_fTime);
-			SetPSConstF(0, g_fTime);
-		}
 		//cam
 		{
 			// 左右キーが押されたらカメラを回転する
@@ -163,6 +154,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			SetDrawScreen(DepthScreen);
 			ClearDrawScreen();
 			SetCameraPositionAndTarget_UpVecY(CameraEyePosition, CameraTargetPosition);
+			SetCameraNearFar(100.f, 50000.f);
 			{
 				// 深度描画の場合は深度描画用の頂点シェーダーをセットする
 				MV1SetUseOrigShader(TRUE);
@@ -183,6 +175,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			SetDrawScreen(DX_SCREEN_BACK);
 			ClearDrawScreen();
 			SetCameraPositionAndTarget_UpVecY(CameraEyePosition, CameraTargetPosition);
+			SetCameraNearFar(100.f, 50000.f);
 			{
 				MV1SetUseOrigShader(FALSE);
 				// ステージモデルの描画
@@ -190,37 +183,24 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				// キャラクターモデルの描画
 				MV1DrawModel(CharaModel);
 
-				MV1SetOpacityRate(ModelHandle, 0.5f);
-				SetUseVertexShader(VertexShaderHandle);	// 使用する頂点シェーダーをセット
-				SetUsePixelShader(PixelShaderHandle);	// 使用するピクセルシェーダーをセット
+				SetUseVertexShader(VolumeWaterVS);
+				SetUsePixelShader(VolumeWaterPS);
+
+//				SetUseVertexShader(VertexShaderHandle);	// 使用する頂点シェーダーをセット
+//				SetUsePixelShader(PixelShaderHandle);	// 使用するピクセルシェーダーをセット
+				{
+					SetUseTextureToShader(2, DepthScreen);
+					auto Time = GetNowCount();	// 現在の時間を得る
+					GameTime = Time - OldTime;	// 今フレームで経過した時間を得る
+					OldTime = Time;				// 現在の時間を保存
+					//
+					g_fTime.x += float(GameTime) / 1000.0f;
+					SetVSConstF(0, g_fTime);
+					SetPSConstF(0, g_fTime);
+				}
 				MV1SetUseOrigShader(TRUE);
 				MV1DrawModel(ModelHandle);			// モデルを描画
 				MV1SetUseOrigShader(FALSE);
-
-				// 水面の描画
-				{
-
-					// 使用するシェーダーのセット
-					SetUseVertexShader(VolumeWaterVS);
-					SetUsePixelShader(VolumeWaterPS);
-					// 使用するテクスチャとして深度スクリーンをセット
-					SetUseTextureToShader(0, DepthScreen);
-					// 不透明度が最大になる距離をセット
-					Param.x = 6000.0f;
-					Param.y = 0.0f;
-					Param.z = 0.0f;
-					Param.w = 0.0f;
-					SetPSConstF(0, Param);
-					// 最低不透明度をセット
-					Param.x = 0.1f;
-					SetPSConstF(1, Param);
-					//
-					SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255);
-					SetUseZBufferFlag(TRUE);
-					SetWriteZBufferFlag(TRUE);
-					DrawPolygon3DToShader(Vertex, 2);
-					SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 255);
-				}
 
 				DrawFormatString(0, 0, GetColor(255, 0, 0), "campos : %5.2f,%5.2f,%5.2f", CameraEyePosition.x, CameraEyePosition.y, CameraEyePosition.z);
 			}
