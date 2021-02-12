@@ -3,8 +3,8 @@ struct PS_INPUT
 {
 	float4 VPosition   : TEXCOORD0;	// 座標( ビュー空間 )
 	float4 PositionSub : TEXCOORD1;	// 座標( 射影空間 )ピクセルシェーダーで参照する為の物
-	float3 VNormal     : TEXCOORD2; // 視線ベクトル（接空間）
-	float2 TexCoords0  : TEXCOORD3; // テクスチャ座標
+	float2 TexCoords0  : TEXCOORD2; // テクスチャ座標
+	float4 LPosition   : TEXCOORD3;	// 座標( ビュー空間 )
 };
 // ピクセルシェーダーの出力
 struct PS_OUTPUT
@@ -58,13 +58,13 @@ PS_OUTPUT main(PS_INPUT PSInput)
 	float2 TexCoords;
 	float4 Depth;
 
-	float MaxOpacityDistance = 5000.f;   // 不透明度が最大になる水中の距離
+	float MaxOpacityDistance = 2000.f;   // 不透明度が最大になる水中の距離
 	//float MinOpacity = 0.0f;   // 最低不透明度
 
 	float	g_time = g_fTime.x;
 
 	//視線ベクトルを正規化
-	V_to_Eye = normalize(PSInput.VNormal);
+	V_to_Eye = normalize(PSInput.VPosition);
 
 	// 法線の準備
 	{
@@ -104,7 +104,7 @@ PS_OUTPUT main(PS_INPUT PSInput)
 	// ディレクショナルライトの処理 +++++++++++++++++++++++++++++++++++++++++++++++++++++( 開始 )
 
 	// ライト方向ベクトルのセット
-	lLightDir = PSInput.VPosition.xyz;
+	lLightDir = PSInput.LPosition.xyz;
 
 	// ディフューズ色計算
 	// DiffuseAngleGen = ディフューズ角度減衰率計算
@@ -144,9 +144,6 @@ PS_OUTPUT main(PS_INPUT PSInput)
 		// 深度テクスチャから深度を取得
 		Depth = tex2D(DepthTexture, TexCoords);
 	}
-	//PSOutput.Color0.r = saturate((1.0f - MinOpacity) * (Depth.r - PSInput.VPosition.z) / MaxOpacityDistance + MinOpacity);
-	//PSOutput.Color0.g = saturate((1.0f - MinOpacity) * (Depth.r - PSInput.VPosition.z) / MaxOpacityDistance + MinOpacity);
-	//PSOutput.Color0.b = saturate((1.0f - MinOpacity) * (Depth.r - PSInput.VPosition.z) / MaxOpacityDistance + MinOpacity);
 	// アルファ値 = テクスチャアルファ * マテリアルのディフューズアルファ * 不透明度
 	PSOutput.Color0.a = saturate(((Depth.r - PSInput.VPosition.z)) / MaxOpacityDistance);//TextureDiffuseColor.a * cfMaterial.Diffuse.a * cfFactorColor.a;
 
