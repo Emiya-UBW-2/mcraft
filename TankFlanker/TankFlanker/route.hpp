@@ -317,7 +317,7 @@ public:
 
 					mapparts->noise_.DrawRotaGraph(Drawparts->disp_x / 6, Drawparts->disp_y / 6, 2.f, 0.f, false);
 					//‰æ–Ê‚Ì”½‰f
-					Drawparts->Screen_Flip(waits);
+					Drawparts->Screen_Flip();
 					//I—¹”»’è
 					if (CheckHitKey(KEY_INPUT_ESCAPE) != 0) {
 						this->ending = false;
