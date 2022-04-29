@@ -1,5 +1,11 @@
-hostpass=false
+grass_level=1
+DoF=false
 bloom=true
 shadow=true
 usevr=false
-fov = 65.0
+SSAO=true
+fov=65.000000
+vsync=true
+SE=1.000000
+VOICE=1.000000
+BGM=1.000000

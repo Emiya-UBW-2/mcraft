@@ -133,18 +133,20 @@ public:
 				this->mat_body = this->mat;
 			}
 		}
-		void operation_VR(std::unique_ptr<DXDraw, std::default_delete<DXDraw>>& Drawparts, const bool& cannotmove, bool* oldv_1_1) {
+		void operation_VR(const bool& cannotmove, bool* oldv_1_1) {
+#ifdef _USE_OPENVR_
+			auto* DrawParts = DXDraw::Instance();
 			//‘€ì
 			{
 				this->jamp = false;
 				{
-					if (Drawparts->get_hand1_num() != -1) {
-						auto& ptr_ = (*Drawparts->get_device())[Drawparts->get_hand1_num()];
+					if (DrawParts->get_hand1_num() != -1) {
+						auto& ptr_ = (*DrawParts->get_device())[DrawParts->get_hand1_num()];
 						if (ptr_.turn && ptr_.now) {
 						}
 					}
-					if (Drawparts->get_hand2_num() != -1) {
-						auto& ptr_ = (*Drawparts->get_device())[Drawparts->get_hand2_num()];
+					if (DrawParts->get_hand2_num() != -1) {
+						auto& ptr_ = (*DrawParts->get_device())[DrawParts->get_hand2_num()];
 						if (ptr_.turn && ptr_.now) {
 							//running
 							this->running = (ptr_.on[0] & BUTTON_TOUCHPAD) != 0;
@@ -167,9 +169,9 @@ public:
 			//HMD_mat
 			{
 				//+Ž‹“_Žæ“¾
-				auto& ptr_ = (*Drawparts->get_device())[Drawparts->get_hmd_num()];
+				auto& ptr_ = (*DrawParts->get_device())[DrawParts->get_hmd_num()];
 				this->pos_HMD_old = this->pos_HMD;
-				Drawparts->GetDevicePositionVR(Drawparts->get_hmd_num(), &this->pos_HMD, &this->mat);
+				DrawParts->GetDevicePositionVR(DrawParts->get_hmd_num(), &this->pos_HMD, &this->mat);
 				if ((ptr_.turn && ptr_.now) != *oldv_1_1) {
 					this->rec_HMD = VGet(this->pos_HMD.x(), 0.f, this->pos_HMD.z());
 				}
@@ -177,6 +179,7 @@ public:
 
 				*oldv_1_1 = ptr_.turn && ptr_.now;
 			}
+#endif
 		}
 		void operation(const bool& cannotmove) {
 			//HMD_mat
@@ -189,8 +192,8 @@ public:
 				this->dkey = (CheckHitKey(KEY_INPUT_D) != 0);
 				this->running = (CheckHitKey(KEY_INPUT_LSHIFT) != 0);
 				this->jamp = CheckHitKey(KEY_INPUT_SPACE) != 0;
-				this->shot.get_in((GetMouseInput() & MOUSE_INPUT_LEFT) != 0);
-				this->shot_R.get_in((GetMouseInput() & MOUSE_INPUT_RIGHT) != 0);
+				this->shot.GetInput((GetMouseInput() & MOUSE_INPUT_LEFT) != 0);
+				this->shot_R.GetInput((GetMouseInput() & MOUSE_INPUT_RIGHT) != 0);
 				//
 				GetMousePoint(&x_m, &y_m);
 				x_m -= deskx / 2;
@@ -237,7 +240,7 @@ public:
 					this->add_vec = this->add_vec_buf;
 				}
 				else {
-					easing_set(&this->add_vec, VGet(0, 0, 0), 0.995f);
+					easing_set(&this->add_vec, VECTOR_ref::zero(), 0.995f);
 				}
 			}
 		}

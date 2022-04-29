@@ -1,11 +1,5 @@
 #pragma once
 class main_c : Mainclass {
-	//設定
-	bool dof_e = false;
-	bool bloom_e = false;
-	bool shadow_e = false;
-	bool useVR_e = true;
-	float fov_pc = 45.f;
 	//カメラ
 	cam_info camera_main, camera_TPS;
 	//描画スクリーン
@@ -27,23 +21,26 @@ class main_c : Mainclass {
 public:
 	main_c() {
 		//設定読み込み
-		{
-			SetOutApplicationLogValidFlag(FALSE);
-			int mdata = FileRead_open("data/setting.txt", FALSE);
-			dof_e = getparams::_bool(mdata);
-			bloom_e = getparams::_bool(mdata);
-			shadow_e = getparams::_bool(mdata);
-			useVR_e = getparams::_bool(mdata);
-			fov_pc = getparams::_float(mdata);
-			FileRead_close(mdata);
-			SetOutApplicationLogValidFlag(TRUE);
-		}
-		auto Drawparts = std::make_unique<DXDraw>("FPS_n2", FRAME_RATE, useVR_e, shadow_e);							//汎用
+		OPTION::Create();
+		auto* OptionParts = OPTION::Instance();
+		OptionParts->Load();							//設定読み込み
+
+		DXDraw::Create("FPS_n2", FRAME_RATE);	//汎用
+
+		DeBuG::Create(FRAME_RATE);
+		auto DebugParts = DeBuG::Instance();					//デバッグ
+
+		OptionParts->Set_useVR(DXDraw::Instance()->use_vr);
+		//シェーダー
+		PostPassEffect::Create();
+
+		auto* DrawParts = DXDraw::Instance();
+
 		auto UIparts = std::make_unique<UI>();																		//UI
-		auto Debugparts = std::make_unique<DeBuG>(FRAME_RATE);														//デバッグ
-		auto Hostpassparts = std::make_unique<HostPassEffect>(dof_e, bloom_e, Drawparts->disp_x, Drawparts->disp_y);//ホストパスエフェクト(VR、フルスクリーン共用)
-		UI_Screen = GraphHandle::Make(Drawparts->disp_x, Drawparts->disp_y, true);									//VR、フルスクリーン共用UI
-		auto Hostpass2parts = std::make_unique<HostPassEffect>(dof_e, bloom_e, deskx, desky);						//ホストパスエフェクト(フルスクリーン向け)
+		auto* PostPassParts = PostPassEffect::Instance();
+
+		UI_Screen = GraphHandle::Make(DrawParts->disp_x, DrawParts->disp_y, true);									//VR、フルスクリーン共用UI
+		//auto Hostpass2parts = std::make_unique<PostPassEffect>(dof_e, bloom_e, deskx, desky);						//ホストパスエフェクト(フルスクリーン向け)
 		outScreen2 = GraphHandle::Make(deskx, desky, true);															//TPS用描画スクリーン
 		auto mapparts = std::make_unique<Mapclass>();																//MAP
 		//model
@@ -63,13 +60,13 @@ public:
 				mine.spawn(VGet(0,0,0),MGetIdent());
 			}
 			//ライティング
-			Drawparts->Set_Light_Shadow(
+			DrawParts->Set_Light_Shadow(
 				VGet(mapparts->cube_size_x*mapparts->size_x, mapparts->cube_size_y*mapparts->size_y, mapparts->cube_size_z*mapparts->size_z),
 				VGet(-mapparts->cube_size_x*mapparts->size_x, -mapparts->cube_size_y*mapparts->size_y, -mapparts->cube_size_z*mapparts->size_z),
 				VGet(0.5f, -0.5f, 0.5f), [&] { mapparts->map_draw_all(); });
 			//描画するものを指定する(仮)
 			auto draw_by_shadow = [&] {
-				Drawparts->Draw_by_Shadow(
+				DrawParts->Draw_by_Shadow(
 					[&] {
 					mapparts->map_draw();
 					for (auto& c : this->chara) {
@@ -77,7 +74,7 @@ public:
 						//
 						SetUseZBuffer3D(FALSE);
 						SetUseLighting(FALSE);
-						auto pos_ = (c.pos + c.pos_HMD) + c.mat.zvec()*(Drawparts->use_vr ? 1.f : -1.f)*3.f;
+						auto pos_ = (c.pos + c.pos_HMD) + c.mat.zvec()*(DrawParts->use_vr ? 1.f : -1.f)*3.f;
 						DrawCube3D(
 							VGet(
 								float(int(pos_.x() / mapparts->cube_size_x)) * mapparts->cube_size_x - mapparts->cube_size_x / 2,
@@ -99,7 +96,7 @@ public:
 				//環境
 				mapparts->Start();
 				//プレイヤー操作変数群
-				this->TPS.ready(false);
+				this->TPS.Init(false);
 				oldv_1_1 = true;
 				oldv_1_2 = true;
 				oldv_2_1 = true;
@@ -111,21 +108,21 @@ public:
 				}
 				SetMousePoint(deskx / 2, desky / 2);
 				//1P
-				camera_main.set_cam_info(deg2rad(Drawparts->use_vr ? 90 : fov_pc), 0.1f, 100.f);
+				camera_main.set_cam_info(deg2rad(DrawParts->use_vr ? 90 : OptionParts->Get_Fov()), 0.1f, 100.f);
 				//TPS
 				camera_TPS.campos = VGet(0, 1.8f, -10);
-				camera_TPS.set_cam_info(deg2rad(fov_pc), 0.1f, 100.f);
+				camera_TPS.set_cam_info(deg2rad(OptionParts->Get_Fov()), 0.1f, 100.f);
 				//
 				while (ProcessMessage() == 0) {
 					const auto fps_ = GetFPS();
 					const auto waits = GetNowHiPerformanceCount();
-					Debugparts->put_way();
+					DebugParts->put_way();
 					{
 						//プレイヤー操作
 						{
 							//chara
-							if (Drawparts->use_vr) {
-								mine.operation_VR(Drawparts, false, &oldv_1_1);
+							if (DrawParts->use_vr) {
+								mine.operation_VR(false, &oldv_1_1);
 							}
 							else {
 								mine.operation(false);
@@ -181,55 +178,59 @@ public:
 									}
 								}
 							}
-							auto pos_ = (c.pos + c.pos_HMD) + c.mat.zvec()*(Drawparts->use_vr ? 1.f : -1.f)*3.f;
+							auto pos_ = (c.pos + c.pos_HMD) + c.mat.zvec()*(DrawParts->use_vr ? 1.f : -1.f)*3.f;
 							//ブロック置く
-							if (c.shot.push()) {
+							if (c.shot.trigger()) {
 								mapparts->put_block(int(pos_.x() / mapparts->cube_size_x), int(pos_.y() / mapparts->cube_size_y), int(pos_.z() / mapparts->cube_size_z), &mapparts->mods.back());
-								Drawparts->Update_far_Shadow([&] { mapparts->map_draw_all(); });
+								DrawParts->Update_far_Shadow([&] { mapparts->map_draw_all(); });
 							}
 							//ブロック消す
-							if (c.shot_R.push()) {
+							if (c.shot_R.trigger()) {
 								mapparts->pop_block(int(pos_.x() / mapparts->cube_size_x), int(pos_.y() / mapparts->cube_size_y), int(pos_.z() / mapparts->cube_size_z));
-								Drawparts->Update_far_Shadow([&] { mapparts->map_draw_all(); });
+								DrawParts->Update_far_Shadow([&] { mapparts->map_draw_all(); });
 							}
 						}
 						//campos,camvec,camupの指定
 						{
 							auto& ct = mine;
-							camera_main.set_cam_pos(ct.pos + ct.pos_HMD, (ct.pos + ct.pos_HMD) + ct.mat.zvec()*(Drawparts->use_vr ? 1.f : -1.f), ct.mat.yvec());
+							camera_main.set_cam_pos(ct.pos + ct.pos_HMD, (ct.pos + ct.pos_HMD) + ct.mat.zvec()*(DrawParts->use_vr ? 1.f : -1.f), ct.mat.yvec());
 						}
 						Set3DSoundListenerPosAndFrontPosAndUpVec(camera_main.campos.get(), camera_main.camvec.get(), camera_main.camup.get());
 						//VR空間に適用
-						Drawparts->Move_Player();
+						DrawParts->Move_Player();
 						//1P描画
 						{
 							//影用意
-							Drawparts->Ready_Shadow(camera_main.campos, [&] { for (auto& c : this->chara) { c.Draw_chara(); } }, VGet(2.f, 2.5f, 2.f), VGet(5.f, 2.5f, 5.f));
+							DrawParts->Ready_Shadow(
+								camera_main.campos,
+								[&] { for (auto& c : this->chara) { c.Draw_chara(); } },
+								[&] { for (auto& c : this->chara) { c.Draw_chara(); } },
+								VGet(2.f, 2.5f, 2.f), VGet(5.f, 2.5f, 5.f));
 							//書き込み
 							{
 								this->UI_Screen.SetDraw_Screen();
 								{
-									UIparts->set_draw(Drawparts->use_vr);
+									UIparts->set_draw(DrawParts->use_vr);
 								}
 							}
 							//VRに移す
-							Drawparts->draw_VR([&] {
+							DrawParts->Draw_VR([&] {
 								auto tmp = GetDrawScreen();
 								auto tmp_cam = camera_main;
 								tmp_cam.campos = GetCameraPosition();
 								tmp_cam.camvec = GetCameraTarget();
 								{
 									//被写体深度描画
-									Hostpassparts->BUF_draw([&]() { mapparts->sky_draw(); }, draw_by_shadow, tmp_cam);
+									PostPassParts->BUF_Draw([&]() { mapparts->sky_draw(); }, draw_by_shadow, tmp_cam);
 									//最終描画
-									Hostpassparts->MAIN_draw();
+									PostPassParts->Set_MAIN_Draw();
 								}
 								GraphHandle::SetDraw_Screen(tmp, tmp_cam.campos, tmp_cam.camvec, tmp_cam.camup, tmp_cam.fov, tmp_cam.near_, tmp_cam.far_);
 								{
 									//main
-									Hostpassparts->get_main().DrawGraph(0, 0, true);
+									PostPassParts->MAIN_Draw();
 									//UI
-									if (Drawparts->use_vr) {
+									if (DrawParts->use_vr) {
 										SetCameraNearFar(0.01f, 2.f);
 										SetUseZBuffer3D(FALSE);												//zbufuse
 										SetWriteZBuffer3D(FALSE);											//zbufwrite
@@ -248,7 +249,7 @@ public:
 						//ディスプレイ描画
 						{
 							//TPS視点
-							this->TPS.get_in(CheckHitKey(KEY_INPUT_LCONTROL) != 0);
+							this->TPS.GetInput(CheckHitKey(KEY_INPUT_LCONTROL) != 0);
 							if (this->TPS.first) {
 								{
 									//pos
@@ -285,39 +286,42 @@ public:
 									camera_TPS.camup = VGet(0, 1.f, 0);
 								}
 								//影用意
-								Drawparts->Ready_Shadow(camera_TPS.campos, [&] { for (auto& c : this->chara) { c.Draw_chara(); } }, VGet(2.f, 2.5f, 2.f), VGet(5.f, 2.5f, 5.f));
+								DrawParts->Ready_Shadow(camera_TPS.campos,
+									[&] { for (auto& c : this->chara) { c.Draw_chara(); } },
+									[&] { for (auto& c : this->chara) { c.Draw_chara(); } },
+									VGet(2.f, 2.5f, 2.f), VGet(5.f, 2.5f, 5.f));
 								//書き込み
 								{
 									//被写体深度描画
-									Hostpass2parts->BUF_draw([&]() { mapparts->sky_draw(); }, draw_by_shadow, camera_TPS);
+									//Hostpass2parts->BUF_Draw([&]() { mapparts->sky_draw(); }, draw_by_shadow, camera_TPS);
 									//最終描画
-									Hostpass2parts->MAIN_draw();
+									//Hostpass2parts->Set_MAIN_Draw();
 								}
 								GraphHandle::SetDraw_Screen((int32_t)(DX_SCREEN_BACK), false);
 								{
-									Hostpass2parts->get_main().DrawGraph(0, 0, true);
+									//Hostpass2parts->MAIN_Draw();
 								}
 							}
 							else {//FPS視点
 								GraphHandle::SetDraw_Screen((int32_t)(DX_SCREEN_BACK), false);
 								{
-									if (Drawparts->use_vr) {
+									if (DrawParts->use_vr) {
 										outScreen2.DrawGraph(0, 0, false);
 									}
 									else {
-										Drawparts->outScreen[0].DrawGraph(0, 0, false);
+										DrawParts->outScreen[0].DrawGraph(0, 0, false);
 									}
 								}
 							}
 							//デバッグ
-							Debugparts->end_way();
-							Debugparts->debug(10, 10, float(GetNowHiPerformanceCount() - waits) / 1000.f);
+							DebugParts->end_way();
+							DebugParts->debug(10, 10, float(GetNowHiPerformanceCount() - waits) / 1000.f);
 						}
 					}
 
-					mapparts->noise_.DrawRotaGraph(Drawparts->disp_x / 6, Drawparts->disp_y / 6, 2.f, 0.f, false);
+					mapparts->noise_.DrawRotaGraph(DrawParts->disp_x / 6, DrawParts->disp_y / 6, 2.f, 0.f, false);
 					//画面の反映
-					Drawparts->Screen_Flip();
+					DrawParts->Screen_Flip();
 					//終了判定
 					if (CheckHitKey(KEY_INPUT_ESCAPE) != 0) {
 						this->ending = false;
@@ -336,7 +340,7 @@ public:
 				}
 				chara.clear();
 				mapparts->Delete();
-				Drawparts->Delete_Shadow();
+				DrawParts->Delete_Shadow();
 			}
 			//
 		} while (ProcessMessage() == 0 && this->ending);
